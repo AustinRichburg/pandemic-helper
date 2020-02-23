@@ -1,16 +1,18 @@
-<div *ngFor="let city of Cities" class="city-container">
-    <div class="city-name city-row">
-        <span>{{ city }}</span>
-    </div>
-    <div class="city-row">
-        <span>Number in Deck - {{ deckService.getNumInPile(city) }}</span>
-    </div>
-    <div class="city-row">
-        <span>Number Drawn - {{ deckService.getNumDrawnForCity(city) }}</span>
-    </div>
-    <div class="city-row">
-        <button (click)="draw(city)">Draw</button>
+<div class="cities-container">
+    <div *ngFor="let city of Cities" class="city-container">
+        <div class="city-name city-row">
+            <span>{{ city }}</span>
+        </div>
+        <div class="city-row">
+            <span>Number in Deck - {{ deckService.getNumInPile(city) }}</span>
+        </div>
+        <div class="city-row">
+            <span>Number Drawn - {{ deckService.getNumDrawnForCity(city) }}</span>
+        </div>
+        <div class="city-row">
+            <button (click)="draw(city)">Draw</button>
+        </div>
     </div>
 </div>
-<button (click)="epidemic()">Epidemic!</button>
-<app-city-chance></app-city-chance>
+
+<button (click)="epidemic()" class="epidemic-button">Epidemic!</button>

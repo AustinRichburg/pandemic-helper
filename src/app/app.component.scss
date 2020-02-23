@@ -1,0 +1,13 @@
+.header {
+    background-color: bisque;
+    display: flex;
+
+    .header-title {
+        font-weight: 800;
+        margin: 5px 10px 5px 4px;
+    }
+
+    .header-link {
+        margin: 5px 15px;
+    }
+}

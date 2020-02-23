@@ -10,7 +10,6 @@ import { Cities } from '../constants';
 export class CityComponent implements OnInit {
 
   deck: Object[];
-  currentEpidemic: number;
   Cities: string[];
 
   constructor(private deckService: DeckService) {
@@ -18,8 +17,7 @@ export class CityComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.deckService.getDeck().subscribe(deck => {this.deck = deck});
-    this.deckService.getCurrentEpidemic().subscribe(index => this.currentEpidemic = index);
+    this.Cities = this.Cities.sort();
   }
 
   draw(city : string) : void {

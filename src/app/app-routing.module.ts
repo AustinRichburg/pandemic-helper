@@ -1,10 +1,12 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
-import { CityComponent } from './city/city.component';
+import { PandemicVanillaComponent } from './pandemic-vanilla/pandemic-vanilla.component';
+import { PandemicLegacyComponent } from './pandemic-legacy/pandemic-legacy.component';
 
 
 const routes: Routes = [
-  {path: '', component: CityComponent}
+  {path: '', component: PandemicVanillaComponent},
+  {path: 'legacy', component: PandemicLegacyComponent}
 ];
 
 @NgModule({
