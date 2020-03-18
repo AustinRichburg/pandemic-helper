@@ -1,106 +1,60 @@
 import { Injectable } from '@angular/core';
-import { of, Observable, Observer, Subject } from 'rxjs';
-import { City } from './City';
-import { Cities } from './constants';
+import { of, Observable, Subject } from 'rxjs';
+import { Cities, Rate } from './constants';
 
 @Injectable({
     providedIn: 'root'
 })
 export class DeckService {
 
-    private deck: Object[];
-    private currentPile: Object;
+    private deck: Object;
+    private deckIndex: number;
 
-    private CityObjs: Object;
-
-    private currentEpidemic: number;
-    private epidemicIndexChange: Subject<number>;
-    private index: number;
+    private totals: number[];
+    private currTotal: number;
+    private totalsIndex: number;
 
     constructor() {
-        this.CityObjs = this.initCities();
-        this.deck = [this.initDeck()];
-        this.currentPile = {...this.initNewPile(), prevTotal: this.deck[0]['total']};
-        this.currentEpidemic = 0;
-        this.index = 0;
-        this.epidemicIndexChange = new Subject<number>();
+        let self = this;
+
+        this.totalsIndex = 0;
+        this.totals = [].fill(0, Rate.length);
+        this.currTotal = 0;
+
+        this.deckIndex = 0;
+        this.deck = this.initDeck();
     }
 
-    getDeck() : Observable<Object[]> {
-        return of(this.deck);
-    }
+    private initDeck() : Object {
+        let total = 0;
+        let deck = {};
 
-    getCurrentEpidemic() : Subject<number> {
-        return this.epidemicIndexChange;
-    }
-
-    initDeck() : Object {
-        let initalDeck = {total: 0};
-        Cities.forEach((city) => {
-            let cityTotal = this.CityObjs[city].getTotalInDeck();
-            initalDeck[city] = cityTotal;
-            initalDeck['total'] += cityTotal;
-        });
-        return initalDeck;
-    }
-
-    initNewPile() : Object {
-        let pile = {total: 0};
-        Cities.forEach(city => {
-            pile[city] = 0;
-        });
-        return pile;
-    }
-
-    drawCard(city : string) : void {
-        if (this.deck[this.currentEpidemic][city] === 0) {
-            return;
+        for (let city of Cities) {
+            deck[city] = {
+                name: city,
+                totalOfCard: 3,
+                pastDrawn: [3],
+                currDrawn: 0,
+                chance: (self: Object) => {
+                    return ((self['pastDrawn'][this.totalsIndex] / this.totals[this.totalsIndex]) * 100).toFixed(2);
+                }
+            };
+            total += 3;
         }
-        this.currentPile[city]++;
-        this.currentPile['total']++;
-
-        this.deck[this.currentEpidemic][city]--;
-        this.deck[this.currentEpidemic]['total']--;
-
-        if (this.deck[this.currentEpidemic]['total'] === 0) {
-            this.deck.splice(this.currentEpidemic, 1);
-            this.currentEpidemic--;
-        }
+        this.totals[0] = total;
+        return deck;
     }
 
-    getNumDrawnForCity(city : string) : number {
-        return this.currentPile[city];
+    public getDeck() : Observable<Object[]> {
+        return of(Object.values(this.deck).filter((city) => typeof city === 'object' && city.hasOwnProperty('name')));
     }
 
-    getCity(city : string) : City {
-        return this.CityObjs[city];
-    }
+    public drawCard(name: string) : void {
+        this.deck[name].currDrawn++;
+        this.deck[name].pastDrawn[this.deckIndex]--;
 
-    initCities() : Object {
-        let cityObjs = {};
-        Cities.forEach(city => {
-            cityObjs[city] = new City(city);
-        });
-        return cityObjs;
-    }
-
-    epidemic() : void {
-        let prevTotal = this.currentPile['total'];
-        this.currentEpidemic++;
-        this.epidemicIndexChange.next(this.currentEpidemic);
-        this.deck.push(this.currentPile);
-        this.currentPile = {...this.initNewPile(), prevTotal: prevTotal};
-    }
-
-    getChanceToDraw(city : string) : number {
-        let index = this.currentEpidemic;
-        let cardsInPile = this.deck[this.currentEpidemic][city];
-        let deckTotal = this.deck[index]['total'];
-        return +((cardsInPile / deckTotal) * 100).toFixed(2);
-    }
-
-    getNumInPile(city: string) : number {
-        return this.deck[this.currentEpidemic][city];
+        this.currTotal++;
+        this.totals[this.totalsIndex]--;
     }
     
 }

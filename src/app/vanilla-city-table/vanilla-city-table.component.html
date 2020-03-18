@@ -1,24 +1,31 @@
-<table mat-table [dataSource]="testData" matSort class="mat-elevation-z8">
+<table mat-table [dataSource]="deckService.getDeck()" matSort class="mat-elevation-z8">
     <ng-container matColumnDef="name">
         <th mat-header-cell *matHeaderCellDef mat-sort-header> City </th>
         <td mat-cell *matCellDef="let city"> {{ city.name }} </td>
     </ng-container>
 
     <ng-container matColumnDef="chance">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header> Chance </th>
-        <td mat-cell *matCellDef="let city"> {{ city.chance }} </td>
+        <th mat-header-cell *matHeaderCellDef mat-sort-header> Chance to Draw </th>
+        <td mat-cell *matCellDef="let city"> {{ city.chance(city) }}% </td>
     </ng-container>
 
-    <ng-container matColumnDef="drawn">
+    <ng-container matColumnDef="totalOfCard">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header> In Deck </th>
+        <td mat-cell *matCellDef="let city"> {{ city.totalOfCard - city.currDrawn }} </td>
+    </ng-container>
+
+    <ng-container matColumnDef="numInPiles">
         <th mat-header-cell *matHeaderCellDef mat-sort-header> Drawn </th>
-        <td mat-cell *matCellDef="let city"> {{ city.drawn }} </td>
+        <td mat-cell *matCellDef="let city"> {{ city.currDrawn }} </td>
     </ng-container>
 
-    <ng-container matColumnDef="inDeck">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header> No. in Deck </th>
-        <td mat-cell *matCellDef="let city"> {{ city.inDeck }} </td>
+    <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef> Actions </th>   
+        <td mat-cell *matCellDef="let city"> 
+            <button mat-raised-button (click)="draw(city.name)">Draw</button> 
+        </td>
     </ng-container>
 
-    <tr mat-header-row *matHeaderRowDef="displayColumns"></tr>
-    <tr mat-row *matRowDef="let row; columns: displayColumns;"></tr>
+    <tr mat-header-row *matHeaderRowDef="columns"></tr>
+    <tr mat-row *matRowDef="let row; columns: columns;"></tr>
 </table>

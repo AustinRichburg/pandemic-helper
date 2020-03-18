@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { DeckService } from '../deck.service';
 
 @Component({
     selector: 'app-vanilla-city-table',
@@ -7,33 +8,17 @@ import { Component, OnInit } from '@angular/core';
 })
 export class VanillaCityTableComponent implements OnInit {
 
-    testData: Object[] = [
-        {
-            name: 'Washington',
-            drawn: 2,
-            inDeck: 1,
-            chance: 14.37
-        },
-        {
-            name: 'Los Angeles',
-            drawn: 1,
-            inDeck: 2,
-            chance: 19.37
-        },
-        {
-            name: 'Cairo',
-            drawn: 0,
-            inDeck: 3,
-            chance: 55.00
-        }
-    ];
+    deck: Object;
+    columns = ['name', 'chance', 'totalOfCard', 'numInPiles', 'actions'];
 
-    displayColumns: string[];
+    constructor(private deckService: DeckService) {}
 
-    constructor() {
-        this.displayColumns = Object.keys(this.testData[0]);
+    ngOnInit() {
+        this.deckService.getDeck().subscribe(deck => this.deck = deck)
     }
 
-    ngOnInit() { }
+    draw(name: string) {
+        this.deckService.drawCard(name);
+    }
 
 }
