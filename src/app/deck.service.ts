@@ -33,10 +33,13 @@ export class DeckService {
             deck[city] = {
                 name: city,
                 totalOfCard: 3,
-                pastDrawn: [3],
+                pastDrawn: [3].fill(0, 1, Rate.length),
                 currDrawn: 0,
                 chance: (self: Object) => {
                     return ((self['pastDrawn'][this.totalsIndex] / this.totals[this.totalsIndex]) * 100).toFixed(2);
+                },
+                inDeck: (self: Object) => {
+                    return self['pastDrawn'][this.totalsIndex] - self['currDrawn'];
                 }
             };
             total += 3;
@@ -55,6 +58,23 @@ export class DeckService {
 
         this.currTotal++;
         this.totals[this.totalsIndex]--;
+
+        if (this.totals[this.totalsIndex] === 0) {
+            this.totalsIndex--;
+            this.deckIndex--;
+        }
+    }
+
+    public epidemic() : void {
+        this.deckIndex++;
+        this.totalsIndex++;
+        this.totals[this.totalsIndex] = this.currTotal;
+        this.currTotal = 0;
+
+        for (let city of Cities) {
+            this.deck[city].pastDrawn[this.deckIndex] = this.deck[city].currDrawn;
+            this.deck[city].currDrawn = 0;
+        }
     }
     
 }

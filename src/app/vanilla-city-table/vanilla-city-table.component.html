@@ -11,7 +11,7 @@
 
     <ng-container matColumnDef="totalOfCard">
         <th mat-header-cell *matHeaderCellDef mat-sort-header> In Deck </th>
-        <td mat-cell *matCellDef="let city"> {{ city.totalOfCard - city.currDrawn }} </td>
+        <td mat-cell *matCellDef="let city"> {{ city.inDeck(city) }} </td>
     </ng-container>
 
     <ng-container matColumnDef="numInPiles">
@@ -29,3 +29,5 @@
     <tr mat-header-row *matHeaderRowDef="columns"></tr>
     <tr mat-row *matRowDef="let row; columns: columns;"></tr>
 </table>
+
+<button (click)="epidemic()">Epidemic</button>

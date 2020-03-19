@@ -9,11 +9,13 @@ import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button'
 
 import { VanillaCityTableComponent } from './vanilla-city-table/vanilla-city-table.component';
+import { HeaderComponent } from './header/header.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-    VanillaCityTableComponent
+    VanillaCityTableComponent,
+    HeaderComponent
   ],
   imports: [
     BrowserModule,

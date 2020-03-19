@@ -21,4 +21,8 @@ export class VanillaCityTableComponent implements OnInit {
         this.deckService.drawCard(name);
     }
 
+    epidemic() : void {
+        this.deckService.epidemic();
+    }
+
 }
