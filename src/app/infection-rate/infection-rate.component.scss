@@ -1,0 +1,18 @@
+.infection-rate {
+    display: flex;
+    justify-content: space-evenly;
+    margin: 30px auto;
+    width: 75%;
+
+    .rate {
+        padding: 20px;
+        font-size: 1.3em;
+
+        &.current {
+            background-color: rgba($color: #ca4242, $alpha: 0.4);
+            border-radius: 20px;
+            font-weight: 800;
+        }
+    }
+    
+}

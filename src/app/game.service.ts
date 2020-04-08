@@ -1,33 +1,57 @@
 import { Injectable } from '@angular/core';
 import { Rate } from './constants';
+import { DeckService } from './deck.service';
 
 @Injectable({
     providedIn: 'root'
 })
 export class GameService {
 
-    private epidemic: number;
+    private epidemicIndex: number;
 
-    constructor() {
-        this.epidemic = 0;
+    constructor(private deckService: DeckService) {
+        this.epidemicIndex = 0;
     }
 
     /**
      * Begins a new game.
      */
     public newGame() : void {
-        this.epidemic = 0;
+        this.epidemicIndex = 0;
+        this.deckService.newGame();
     }
 
     /**
      * Decides if the game has ended.
      */
-    // public isGameOver() : boolean {
-    //     return false;
-    // }
+    public isGameOver() : boolean {
+        let gameOver = false;
+
+        if (this.epidemicIndex >= Rate.length) {
+            gameOver = true;
+        }
+
+        return gameOver;
+    }
 
     public getDrawRate() : number {
-        return Rate[this.epidemic];
+        return Rate[this.epidemicIndex];
+    }
+
+    public getEpidemic() : number {
+        return this.epidemicIndex;
+    }
+
+    public epidemic() : boolean {
+        this.epidemicIndex++;
+
+        if (this.isGameOver()) {
+            return true;
+        }
+
+        this.deckService.epidemic();
+
+        return false;
     }
 
 }

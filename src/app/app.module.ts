@@ -7,14 +7,16 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button'
+import { MatDialogModule } from '@angular/material/dialog';
 
-import { VanillaCityTableComponent } from './vanilla-city-table/vanilla-city-table.component';
 import { HeaderComponent } from './header/header.component';
+import { VanillaGameModule } from './vanilla-game/vanilla-game.module';
+import { SharedModule } from './shared/shared.module';
+import { LegacyGameModule } from './legacy-game/legacy-game.module';
 
 @NgModule({
   declarations: [
     AppComponent,
-    VanillaCityTableComponent,
     HeaderComponent
   ],
   imports: [
@@ -22,9 +24,14 @@ import { HeaderComponent } from './header/header.component';
     AppRoutingModule,
     BrowserAnimationsModule,
     MatTableModule,
-    MatButtonModule
+    MatButtonModule,
+    MatDialogModule,
+    VanillaGameModule,
+    LegacyGameModule,
+    SharedModule
   ],
   providers: [],
   bootstrap: [AppComponent]
+  
 })
 export class AppModule { }

@@ -1,4 +1,13 @@
 <div class="header">
-    <span><a class="header-link" routerLink="/">Vanilla</a></span>
-    <span><a class="header-link" routerLink="/legacy">Legacy</a></span>
+    <span class="header-title">Pandemic Helper</span>
+    <div class="header-link" routerLink="/vanilla">
+        <p>Vanilla</p>
+    </div>
+    <div class="header-link dropdown" routerLink="/legacy">
+        <p>Legacy</p>
+        <span id="dropdown-content" class="dropdown-content">
+            <div class="dropdown-link" routerLink="/legacy/season-one" (click)="$event.stopPropagation()"><p>Season 1</p></div>
+            <div class="dropdown-link" routerLink="/legacy/season-two" (click)="$event.stopPropagation()"><p>Season 2</p></div>
+        </span>
+    </div>
 </div>

@@ -1,3 +1,5 @@
+<app-infection-rate></app-infection-rate>
+
 <table mat-table [dataSource]="deckService.getDeck()" matSort class="mat-elevation-z8">
     <ng-container matColumnDef="name">
         <th mat-header-cell *matHeaderCellDef mat-sort-header> City </th>
@@ -30,4 +32,4 @@
     <tr mat-row *matRowDef="let row; columns: columns;"></tr>
 </table>
 
-<button (click)="epidemic()">Epidemic</button>
+<button (click)="epidemic()" class="btn-epidemic" mat-raised-button color="warn">Epidemic</button>

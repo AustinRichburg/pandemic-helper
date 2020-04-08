@@ -1,0 +1,36 @@
+h3 {
+    text-align: center;
+}
+
+.season-option {
+    background-color: #b1ffe888;
+    border-radius: 8px;
+    margin: 20px auto;
+    padding: 12px;
+    width: 50%;
+
+    &:hover {
+        background-color: #91cfbd88;
+        cursor: pointer;
+    }
+
+    .season-title {
+        font-weight: 800;
+        text-align: center;
+    }
+
+    .season-picture {
+        overflow: hidden;
+        width: 100%;
+
+        img {
+            max-height: 100%;
+            overflow: hidden;
+            max-width: 100%;
+        }
+    }
+
+    button {
+        width: 100%;
+    }
+}
