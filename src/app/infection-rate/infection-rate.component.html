@@ -1,3 +1,7 @@
 <div class="infection-rate">
-    <span class="rate" *ngFor="let rate of rates; let i = index" [ngClass]="{'current': gameService.getEpidemic() === i}">{{ rate }}</span>
+    <div class="header">Infection Rate</div>
+    <div class="infection-rate-counter">
+        <span class="rate" *ngFor="let rate of rates; let i = index" [ngClass]="{'current': gameService.getEpidemic() === i}">{{ rate }}</span>
+    </div>
 </div>
+

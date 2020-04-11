@@ -8,6 +8,7 @@ import { MatTableModule } from '@angular/material/table';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { VanillaGameRoutingModule } from './vanilla-game-routing.module';
+import { MatSortModule } from '@angular/material/sort';
 
 @NgModule({
     declarations: [
@@ -20,7 +21,8 @@ import { VanillaGameRoutingModule } from './vanilla-game-routing.module';
         VanillaGameRoutingModule,
         MatTableModule,
         MatDialogModule,
-        MatButtonModule
+        MatButtonModule,
+        MatSortModule
     ],
     entryComponents: [GameOverModalComponent]
 })

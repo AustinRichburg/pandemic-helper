@@ -1,15 +1,19 @@
 import { Component, OnInit } from '@angular/core';
+import { Title } from '@angular/platform-browser';
 
 @Component({
-  selector: 'app-season-one',
-  templateUrl: './season-one.component.html',
-  styleUrls: ['./season-one.component.scss']
+    selector: 'app-season-one',
+    templateUrl: './season-one.component.html',
+    styleUrls: ['./season-one.component.scss']
 })
 export class SeasonOneComponent implements OnInit {
 
-  constructor() { }
+    title: string = "Legacy - Season 1"
 
-  ngOnInit() {
-  }
+    constructor(private titleService: Title) { }
+
+    ngOnInit() {
+        this.titleService.setTitle(this.title);
+    }
 
 }

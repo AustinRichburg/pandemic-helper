@@ -1,8 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { DeckService } from '../../deck.service';
 import { GameService } from '../../game.service';
 import { GameOverModalComponent } from '../game-over-modal/game-over-modal.component';
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
+import { MatTableDataSource } from '@angular/material/table';
+import { MatSort } from '@angular/material/sort';
+import { Title } from '@angular/platform-browser';
 
 @Component({
     selector: 'app-vanilla-city-table',
@@ -11,17 +14,26 @@ import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 })
 export class VanillaCityTableComponent implements OnInit {
 
-    deck: Object;
+    deck: Object[];
     columns = ['name', 'chance', 'totalOfCard', 'numInPiles', 'actions'];
     isGameOver: boolean;
+    tableSource: MatTableDataSource<Object>;
+    title: string = "Pandemic Helper - Vanilla";
+
+    @ViewChild(MatSort, {static: true}) sort: MatSort;
 
     constructor(private deckService: DeckService,
                 private gameService: GameService,
+                private titleService: Title,
                 public dialog: MatDialog) {}
 
     ngOnInit() {
+        this.titleService.setTitle(this.title);
         this.isGameOver = false;
-        this.deckService.getDeck().subscribe(deck => this.deck = deck)
+        this.deckService.getDeck().subscribe(deck => this.deck = deck);
+        this.tableSource = new MatTableDataSource(this.deck);
+        this.tableSource.sort = this.sort;
+        this.tableSource.sortingDataAccessor = this.sortFunc;
     }
 
     draw(name: string) {
@@ -36,4 +48,20 @@ export class VanillaCityTableComponent implements OnInit {
         }
     }
 
+    sortFunc(item, header) {
+        switch (header) {
+            case 'name': return item.name;
+            case 'chance': return parseFloat(item.chance(item));
+            case 'totalOfCard': return item.inDeck(item);
+            case 'numInPiles': return item.currDrawn;
+        }
+    }
+
+}
+
+export interface Card {
+    name: string,
+    chance: string,
+    totalOfCard: number,
+    numInPiles: number
 }

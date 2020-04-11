@@ -1,0 +1,17 @@
+<div class="search-box">
+    <input type="text" (keyup)="onSearch()" [(ngModel)]="searchText" placeholder="Search">
+</div>
+
+<div class="rules" id="rules">
+    <div *ngFor="let section of rules[ruleSet]">
+        <div class="section-header">{{ section.category }}</div>
+        <div [ngSwitch]="section.type">
+            <ol *ngSwitchCase="'ol'">
+                <li *ngFor="let rule of section.text" class="text-section">{{ rule }}</li>
+            </ol>
+            <ul *ngSwitchCase="'ul'">
+                <li *ngFor="let rule of section.text" class="text-section">{{ rule }}</li>
+            </ul>
+        </div>
+    </div>
+</div>

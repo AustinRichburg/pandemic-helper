@@ -1,4 +1,4 @@
-import { BrowserModule } from '@angular/platform-browser';
+import { BrowserModule, Title } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 
 import { AppRoutingModule } from './app-routing.module';
@@ -13,11 +13,14 @@ import { HeaderComponent } from './header/header.component';
 import { VanillaGameModule } from './vanilla-game/vanilla-game.module';
 import { SharedModule } from './shared/shared.module';
 import { LegacyGameModule } from './legacy-game/legacy-game.module';
+import { RulesComponent } from './rules/rules.component';
+import { FormsModule } from '@angular/forms';
 
 @NgModule({
   declarations: [
     AppComponent,
-    HeaderComponent
+    HeaderComponent,
+    RulesComponent
   ],
   imports: [
     BrowserModule,
@@ -28,9 +31,10 @@ import { LegacyGameModule } from './legacy-game/legacy-game.module';
     MatDialogModule,
     VanillaGameModule,
     LegacyGameModule,
-    SharedModule
+    SharedModule,
+    FormsModule
   ],
-  providers: [],
+  providers: [Title],
   bootstrap: [AppComponent]
   
 })

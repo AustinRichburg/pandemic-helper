@@ -1,0 +1,32 @@
+.search-box {
+    margin: 10px 20px;
+
+    input {
+        background-color: #ffffff00;
+        border-top: none;
+        border-left: none;
+        border-right: none;
+        border-bottom: 1px solid #4e4e4eb6;
+        color: #eeeeee;
+        font-size: 16px;
+        height: 3vh;
+        padding-left: 10px;
+        transition: all 0.5s ease;
+        width: 100%;
+
+        &:focus {
+            border-bottom: 1px solid #fbff00c7;
+            outline: none;
+            padding: 10px 0 5px 15px;
+        }
+    }
+    
+}
+
+.rules {
+    margin: 25px 40px;
+}
+
+.highlight {
+    color: #e9da11;
+}

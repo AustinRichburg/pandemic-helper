@@ -2,13 +2,21 @@
     margin: 0 auto;
     width: 90%;
 
+    .mat-raised-button {
+        background-color: #e0e41c;
+    }
+
     .mat-raised-button:hover {
-        background-color: #f0f0f0;
+        background-color: #a9ac16;
     }
 }
 
-.btn-epidemic {
+.vanilla-button {
     display: block;
     margin: 30px auto;
     width: 25%;
+
+    &.btn-epidemic:hover {
+        background-color: #bd342a;
+    }
 }
