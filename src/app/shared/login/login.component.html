@@ -1,0 +1,19 @@
+<div class="user-control-content">
+    <p class="header">Log In</p>
+
+    <form (ngSubmit)="login()" #loginForm="ngForm">
+        <div class="form-block">
+            <label for="email">Email</label>
+            <input type="text" name="email" id="email" [(ngModel)]="user.email" #email="ngModel" required>
+        </div>
+        <div class="form-block">
+            <label for="password">Password</label>
+            <input type="text" name="password" id="password" [(ngModel)]="user.password" #password="ngModel" required>
+        </div>
+
+        <button mat-raised-button color="accent">Login</button>
+    </form>
+
+    <div class="link">Forgot your password?</div>
+    <div class="link" routerLink="/signup">Don't have an account? Sign up here!</div>
+</div>

@@ -65,5 +65,10 @@
         &:focus {
             outline: none;
         }
+
+        &.align-right {
+            margin-left: auto;
+        }
     }
+
 }

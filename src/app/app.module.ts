@@ -15,6 +15,7 @@ import { SharedModule } from './shared/shared.module';
 import { LegacyGameModule } from './legacy-game/legacy-game.module';
 import { RulesComponent } from './rules/rules.component';
 import { FormsModule } from '@angular/forms';
+import { HttpClientModule } from '@angular/common/http';
 
 @NgModule({
   declarations: [
@@ -32,7 +33,8 @@ import { FormsModule } from '@angular/forms';
     VanillaGameModule,
     LegacyGameModule,
     SharedModule,
-    FormsModule
+    FormsModule,
+    HttpClientModule
   ],
   providers: [Title],
   bootstrap: [AppComponent]

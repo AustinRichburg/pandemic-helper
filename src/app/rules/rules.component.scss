@@ -25,8 +25,52 @@
 
 .rules {
     margin: 25px 40px;
+
+    .section-header {
+        font-weight: 500;
+    }
+
+    .subheader {
+        margin: 5px 0;
+    }
+
+    .text-section {
+        margin: 5px 0;
+
+        i {
+            color: #fbff00c7;
+
+            &::after {
+                content: '\25BC';
+                padding-left: 3px;
+            }
+    
+            &.dd-active::after {
+                content: '\25B2';
+                padding-left: 3px;
+            }
+        }
+
+        .subtext {
+            height: 0;
+            opacity: 0;
+            padding: 10px 0 10px 15px;
+            transition: height 0.3s, opacity 0.5s ease;
+            visibility: hidden;
+
+            &.active {
+                height: auto;
+                opacity: 1;
+                visibility: visible;
+            }
+        }
+    }
 }
 
 .highlight {
     color: #e9da11;
+}
+
+.pointer {
+    cursor: pointer;
 }

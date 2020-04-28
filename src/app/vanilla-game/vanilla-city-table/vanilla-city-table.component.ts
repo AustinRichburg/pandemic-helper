@@ -7,6 +7,8 @@ import { MatTableDataSource } from '@angular/material/table';
 import { MatSort } from '@angular/material/sort';
 import { Title } from '@angular/platform-browser';
 
+import { HttpClient } from '@angular/common/http';
+
 @Component({
     selector: 'app-vanilla-city-table',
     templateUrl: './vanilla-city-table.component.html',
@@ -20,11 +22,14 @@ export class VanillaCityTableComponent implements OnInit {
     tableSource: MatTableDataSource<Object>;
     title: string = "Pandemic Helper - Vanilla";
 
+    time: Object = {time: 'test'};
+
     @ViewChild(MatSort, {static: true}) sort: MatSort;
 
     constructor(private deckService: DeckService,
                 private gameService: GameService,
                 private titleService: Title,
+                private http: HttpClient,
                 public dialog: MatDialog) {}
 
     ngOnInit() {
@@ -57,11 +62,4 @@ export class VanillaCityTableComponent implements OnInit {
         }
     }
 
-}
-
-export interface Card {
-    name: string,
-    chance: string,
-    totalOfCard: number,
-    numInPiles: number
 }

@@ -1,0 +1,22 @@
+<div class="user-control-content">
+    <p class="header">Create an Account</p>
+
+    <form (ngSubmit)="signUp()" #signupForm="ngForm">
+        <div class="form-block">
+            <label for="email">Email</label>
+            <input type="email" name="email" id="email" [(ngModel)]="user.email" #email="ngModel" required>
+        </div>
+        <div class="form-block">
+            <label for="password">Password</label>
+            <input type="text" name="password" id="password" [(ngModel)]="user.password" #password="ngModel" required>
+        </div>
+        <div class="form-block">
+            <label for="password-validate">Re-enter Password</label>
+            <input type="text" name="password-validate" id="password-validate" (change)="doPasswordsMatch()" [(ngModel)]="passwordValidate" required>
+        </div>
+
+        <button mat-raised-button color="accent">Sign Up</button>
+    </form>
+
+    <div class="link" routerLink="/login">Already have an account?</div>
+</div>

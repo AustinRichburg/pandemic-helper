@@ -1,0 +1,60 @@
+.user-control-content{
+    margin: 0 30%;
+}
+
+.header {
+    font-weight: 500;
+    text-align: center;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+
+    .form-block {
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 20px;
+
+        label {
+            padding: 2px 0;
+        }
+
+        input {
+            background-color: #ffffff00;
+            border-top: none;
+            border-left: none;
+            border-right: none;
+            border-bottom: 1px solid #4e4e4eb6;
+            color: #eeeeee;
+            font-size: 16px;
+            height: 3vh;
+            padding-left: 10px;
+            transition: all 0.5s ease;
+
+            &:focus {
+                border-bottom: 1px solid #fbff00c7;
+                outline: none;
+                padding: 10px 0 5px 15px;
+            }
+        }
+    }
+
+    button {
+        margin: 20px auto 5px auto;
+        width: 15%
+    }
+}
+
+div.link {
+    color: inherit;
+    cursor: pointer;
+    display: block;
+    margin: 15px auto;
+    text-align: center;
+    text-decoration: none;
+
+    &:hover {
+        text-decoration: underline;
+    }
+}
