@@ -8,6 +8,7 @@ import { MatSort } from '@angular/material/sort';
 import { Title } from '@angular/platform-browser';
 
 import { HttpClient } from '@angular/common/http';
+import { NotesComponent } from 'src/app/shared/notes/notes.component';
 
 @Component({
     selector: 'app-vanilla-city-table',
@@ -17,12 +18,10 @@ import { HttpClient } from '@angular/common/http';
 export class VanillaCityTableComponent implements OnInit {
 
     deck: Object[];
-    columns = ['name', 'chance', 'totalOfCard', 'numInPiles', 'actions'];
+    columns = ['name', 'chance', 'totalOfCard', 'numInPiles', 'actions', 'notes'];
     isGameOver: boolean;
     tableSource: MatTableDataSource<Object>;
     title: string = "Pandemic Helper - Vanilla";
-
-    time: Object = {time: 'test'};
 
     @ViewChild(MatSort, {static: true}) sort: MatSort;
 
@@ -60,6 +59,16 @@ export class VanillaCityTableComponent implements OnInit {
             case 'totalOfCard': return item.inDeck(item);
             case 'numInPiles': return item.currDrawn;
         }
+    }
+
+    openNotes(city: string) {
+        const config = new MatDialogConfig();
+        config.width = '50%';
+        config.data = {
+            name: city,
+            notes: this.deckService.getNotes(city)
+        };
+        this.dialog.open(NotesComponent, config);
     }
 
 }

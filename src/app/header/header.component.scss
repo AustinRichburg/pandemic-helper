@@ -65,10 +65,11 @@
         &:focus {
             outline: none;
         }
+    }
 
-        &.align-right {
-            margin-left: auto;
-        }
+    .align-right {
+        display: inherit;
+        margin-left: auto;
     }
 
 }

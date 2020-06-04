@@ -14,7 +14,7 @@ form {
     .form-block {
         display: flex;
         flex-direction: column;
-        margin-bottom: 20px;
+        margin-bottom: 15px;
 
         label {
             padding: 2px 0;
@@ -38,6 +38,12 @@ form {
                 padding: 10px 0 5px 15px;
             }
         }
+    }
+
+    .form-error {
+        color: rgb(221, 51, 51);
+        font-size: 12px;
+        margin-bottom: 15px;
     }
 
     button {

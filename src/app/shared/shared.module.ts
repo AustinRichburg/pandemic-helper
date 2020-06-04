@@ -6,22 +6,28 @@ import { LoginComponent } from './login/login.component';
 import { SignupComponent } from './signup/signup.component';
 import { AppRoutingModule } from '../app-routing.module';
 import { FormsModule } from '@angular/forms';
+import { NotesComponent, NoteContentComponent } from './notes/notes.component';
+import { MatDialogModule } from '@angular/material/dialog';
 
 
 
 @NgModule({
-    declarations: [InfectionRateComponent, LoginComponent, SignupComponent],
+    declarations: [InfectionRateComponent, LoginComponent, SignupComponent, NotesComponent, NoteContentComponent],
     imports: [
         AppRoutingModule,
         CommonModule,
         MatButtonModule,
-        FormsModule
+        FormsModule,
+        MatDialogModule
     ],
     exports: [
         InfectionRateComponent,
         MatButtonModule,
         LoginComponent,
-        SignupComponent
+        SignupComponent,
+        NotesComponent,
+        MatDialogModule,
+        NoteContentComponent
     ]
 })
 export class SharedModule { }

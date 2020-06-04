@@ -33,7 +33,8 @@ export class DeckService {
                 },
                 inDeck: (self: Object) => {
                     return self['pastDrawn'][this.totalsIndex];
-                }
+                },
+                notes: []
             };
             total += 3;
         }
@@ -106,6 +107,18 @@ export class DeckService {
 
         this.deckIndex = 0;
         this.deck = this.initDeck();
+    }
+
+    public getNotes(city: string) {
+        return this.deck[city].notes;
+    }
+
+    public addNote(city: string, note: string) {
+        this.deck[city].notes.push(note);
+    }
+
+    public deleteNote(city: string, index: number) {
+        this.deck[city].notes.splice(index, 1);
     }
     
 }

@@ -10,10 +10,17 @@
             <div class="dropdown-link" routerLink="/legacy/season-two" (click)="$event.stopPropagation()"><p>Season 2</p></div>
         </span>
     </div>
-    <div class="header-link align-right" routerLink="/signup">
-        <p>Sign Up</p>
-    </div>
-    <div class="header-link" routerLink="/login">
-        <p>Log In</p>
-    </div>
+    <span *ngIf="!signedIn" class="align-right">
+        <div class="header-link" routerLink="/signup">
+            <p>Sign Up</p>
+        </div>
+        <div class="header-link" routerLink="/login">
+            <p>Log In</p>
+        </div>
+    </span>
+    <span *ngIf="signedIn" class="align-right">
+        <div class="header-link" (click)="logout()">
+            <p>Logout</p>
+        </div>
+    </span>
 </div>

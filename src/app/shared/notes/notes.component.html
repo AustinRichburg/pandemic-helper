@@ -1,0 +1,11 @@
+<h1 mat-dialog-title>{{ data.name }}</h1>
+<div mat-dialog-content [ngSwitch]="data.notes.length">
+  <ul *ngSwitchDefault>
+      <li *ngFor="let note of data.notes; let i = index">{{ note }}<span class="delete-btn" (click)="deleteNote(i)"> &#10006;</span></li>
+  </ul>
+  <span *ngSwitchCase="0">No notes available</span>
+</div>
+<div mat-dialog-actions>
+  <button mat-button (click)="dialogRef.close()">Close</button>
+  <button mat-button (click)="createNote()" cdkFocusInitial>Add new note</button>
+</div>
