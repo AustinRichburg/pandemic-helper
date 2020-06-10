@@ -46,5 +46,8 @@ testem.log
 Thumbs.db
 
 #Python files
-/api/__pycache__
-/api/venv
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+*.pyc

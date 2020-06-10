@@ -1,3 +1,18 @@
+.btn-group-game-controls {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-evenly;
+    margin: 30px 0;
+
+    .btn-game-control {
+        width: 14em;
+
+        &:hover {
+            background-color: #363636;
+        }
+    }
+}
+
 .mat-table {
     margin: 0 auto;
     width: 90%;

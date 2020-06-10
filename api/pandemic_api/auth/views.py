@@ -9,7 +9,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 
 # class LoginView(APIView):
-#     permission_classes = [IsAuthenticated]  
+#     permission_classes = [IsAuthenticated]
 
 #     def get(self, request):
 #         req = json.loads(request.body)

@@ -1,3 +1,9 @@
+<div class="btn-group-game-controls">
+    <button mat-raised-button class="btn-game-control" (click)="startRemoteGame()">Create remote game</button>
+    <button mat-raised-button class="btn-game-control" (click)="saveGame()">Save Game</button>
+    <button mat-raised-button class="btn-game-control" (click)="loadGame()">Load Game</button>
+</div>
+
 <app-infection-rate></app-infection-rate>
 
 <table mat-table [dataSource]="tableSource" matSort class="mat-elevation-z8">

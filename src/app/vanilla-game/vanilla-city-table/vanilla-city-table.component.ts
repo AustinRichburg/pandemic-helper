@@ -7,8 +7,8 @@ import { MatTableDataSource } from '@angular/material/table';
 import { MatSort } from '@angular/material/sort';
 import { Title } from '@angular/platform-browser';
 
-import { HttpClient } from '@angular/common/http';
 import { NotesComponent } from 'src/app/shared/notes/notes.component';
+import { AuthService } from 'src/app/auth.service';
 
 @Component({
     selector: 'app-vanilla-city-table',
@@ -28,7 +28,7 @@ export class VanillaCityTableComponent implements OnInit {
     constructor(private deckService: DeckService,
                 private gameService: GameService,
                 private titleService: Title,
-                private http: HttpClient,
+                private auth: AuthService,
                 public dialog: MatDialog) {}
 
     ngOnInit() {
@@ -69,6 +69,35 @@ export class VanillaCityTableComponent implements OnInit {
             notes: this.deckService.getNotes(city)
         };
         this.dialog.open(NotesComponent, config);
+    }
+
+    startRemoteGame() {
+        console.log("remote game started");
+        this.auth.startRemoteGame();
+    }
+
+    saveGame() {
+        const gameInfo = this.deckService.toString();
+        const game = {
+            id: this.generateId(30),
+            name: 'test',
+            game: gameInfo
+        }
+        this.auth.saveGame(game);
+    }
+
+    loadGame() {
+        this.auth.getGameList();
+    }
+
+    private dec2hex (dec: any) {
+        return ('0' + dec.toString(16)).substr(-2)
+    }
+
+    private generateId (len: number) : string {
+        var arr = new Uint8Array((len || 40) / 2)
+        window.crypto.getRandomValues(arr)
+        return Array.from(arr, this.dec2hex).join('')
     }
 
 }

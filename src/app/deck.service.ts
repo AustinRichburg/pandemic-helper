@@ -120,5 +120,16 @@ export class DeckService {
     public deleteNote(city: string, index: number) {
         this.deck[city].notes.splice(index, 1);
     }
+
+    public toString() : string {
+        let gameInfo = {
+            deck: this.deck,
+            deckIndex: this.deckIndex,
+            totals: this.totals,
+            totalsIndex: this.totalsIndex,
+            currTotal: this.currTotal
+        };
+        return JSON.stringify(gameInfo);
+    }
     
 }
