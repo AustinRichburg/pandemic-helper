@@ -4,6 +4,7 @@
 /dist
 /tmp
 /out-tsc
+
 # Only exists if Bazel was run
 /bazel-out
 
@@ -15,6 +16,7 @@ chrome-profiler-events*.json
 speed-measure-plugin*.json
 
 # IDEs and editors
+.vscode/
 /.idea
 .project
 .classpath
@@ -51,3 +53,7 @@ __pycache__/
 *$py.class
 venv/
 *.pyc
+
+# e2e
+/e2e/*.js
+/e2e/*.map
