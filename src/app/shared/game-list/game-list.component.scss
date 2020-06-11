@@ -1,3 +1,9 @@
 .game {
+    color:#b8b7b7;
+    cursor: pointer;
     margin: 10px;
+
+    &:hover {
+        color: #eeeeee;
+    }
 }

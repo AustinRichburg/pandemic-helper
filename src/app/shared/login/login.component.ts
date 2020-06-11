@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { User } from 'src/app/models/user';
 import { AuthService } from 'src/app/auth.service';
+import { Router } from '@angular/router';
 
 @Component({
     selector: 'app-login',
@@ -12,11 +13,14 @@ export class LoginComponent implements OnInit {
 
     apiUrl: string = 'http://127.0.0.1:8000/';
     user: User = new User('', '');
+    state: Object;
 
     /* Regex validating email format */
     emailValidation: RegExp = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 
-    constructor(private http: HttpClient, private auth: AuthService) { }
+    constructor(private auth: AuthService, private router: Router) {
+        this.state = this.router.getCurrentNavigation().extras.state;
+    }
 
     ngOnInit() { }
 

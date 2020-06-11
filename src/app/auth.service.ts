@@ -86,7 +86,7 @@ export class AuthService {
     public startRemoteGame() : void {
         // This is a feature that requires an account.
         if (!this.signedIn.getValue()) {
-            this.router.navigate(['/login']);
+            this.router.navigate(['/login'], {state: {message: 'You need to be logged in to do that.'}});
             return;
         }
 
@@ -95,10 +95,10 @@ export class AuthService {
 
     public saveGame(game: Object) : void {
         // This is a feature that requires an account.
-        // if (!this.signedIn.getValue()) {
-        //     this.router.navigate(['/login']);
-        //     return;
-        // }
+        if (!this.signedIn.getValue()) {
+            this.router.navigate(['/login'], {state: {message: 'You need to be logged in to do that.'}});
+            return;
+        }
 
         this.http.post(this.apiUrl + 'game/', game).subscribe(
             res => console.log(res)
@@ -106,6 +106,12 @@ export class AuthService {
     }
 
     public getGameList() : Observable<Object> {
+        // This is a feature that requires an account.
+        if (!this.signedIn.getValue()) {
+            this.router.navigate(['/login'], {state: {message: 'You need to be logged in to do that.'}});
+            return;
+        }
+
         return this.http.get(this.apiUrl + 'game');
     }
 

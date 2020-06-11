@@ -9,6 +9,12 @@ import { DeckService } from 'src/app/deck.service';
 })
 export class GameListComponent implements OnInit {
 
+    localOptions: Object = {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+    }
+
     constructor(public dialogRef: MatDialogRef<GameListComponent>,
         @Inject(MAT_DIALOG_DATA) public gameList: DialogData[],
         public dialog: MatDialog,
@@ -16,8 +22,13 @@ export class GameListComponent implements OnInit {
 
     ngOnInit() { }
 
-    loadGame(deck: string) {
+    loadGame(deck: string) : void {
         this.deck.loadNewDeck(deck);
+    }
+
+    format(date: string) : string {
+        let d = new Date(date);
+        return d.toLocaleDateString(undefined, this.localOptions) + ' ' + d.toLocaleTimeString();
     }
 
 }

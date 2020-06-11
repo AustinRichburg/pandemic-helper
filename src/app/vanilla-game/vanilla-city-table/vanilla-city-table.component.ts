@@ -34,7 +34,6 @@ export class VanillaCityTableComponent implements OnInit {
         this.isGameOver = false;
         this.deckService.getDeck().subscribe(
             (deck) => {
-                console.log(deck);
                 this.deck = new MatTableDataSource(deck);
                 this.deck.sort = this.sort;
                 this.deck.sortingDataAccessor = this.sortFunc;
@@ -74,7 +73,6 @@ export class VanillaCityTableComponent implements OnInit {
     }
 
     startRemoteGame() {
-        console.log("remote game started");
         this.auth.startRemoteGame();
     }
 
@@ -92,7 +90,6 @@ export class VanillaCityTableComponent implements OnInit {
         let gameList = [];
         let gameListSuccess = (res: any) => {
             gameList = res['data'];
-            console.log(gameList);
             let config = new MatDialogConfig();
             config.data = gameList;
             this.dialog.open(GameListComponent, config);
