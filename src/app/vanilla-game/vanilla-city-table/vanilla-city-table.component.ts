@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { DeckService } from '../../deck.service';
-import { GameService } from '../../game.service';
 import { GameOverModalComponent } from '../game-over-modal/game-over-modal.component';
+import { GameListComponent } from '../../shared/game-list/game-list.component';
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatSort } from '@angular/material/sort';
@@ -17,16 +17,14 @@ import { AuthService } from 'src/app/auth.service';
 })
 export class VanillaCityTableComponent implements OnInit {
 
-    deck: Object[];
+    deck: MatTableDataSource<Object>;
     columns = ['name', 'chance', 'totalOfCard', 'numInPiles', 'actions', 'notes'];
     isGameOver: boolean;
-    tableSource: MatTableDataSource<Object>;
     title: string = "Pandemic Helper - Vanilla";
 
     @ViewChild(MatSort, {static: true}) sort: MatSort;
 
     constructor(private deckService: DeckService,
-                private gameService: GameService,
                 private titleService: Title,
                 private auth: AuthService,
                 public dialog: MatDialog) {}
@@ -34,10 +32,14 @@ export class VanillaCityTableComponent implements OnInit {
     ngOnInit() {
         this.titleService.setTitle(this.title);
         this.isGameOver = false;
-        this.deckService.getDeck().subscribe(deck => this.deck = deck);
-        this.tableSource = new MatTableDataSource(this.deck);
-        this.tableSource.sort = this.sort;
-        this.tableSource.sortingDataAccessor = this.sortFunc;
+        this.deckService.getDeck().subscribe(
+            (deck) => {
+                console.log(deck);
+                this.deck = new MatTableDataSource(deck);
+                this.deck.sort = this.sort;
+                this.deck.sortingDataAccessor = this.sortFunc;
+            }
+        );
     }
 
     draw(name: string) {
@@ -45,7 +47,7 @@ export class VanillaCityTableComponent implements OnInit {
     }
 
     epidemic() : void {
-        this.isGameOver = this.gameService.epidemic();
+        this.isGameOver = this.deckService.epidemic();
         if (this.isGameOver) {
             const config = new MatDialogConfig();
             this.dialog.open(GameOverModalComponent, config);
@@ -87,7 +89,18 @@ export class VanillaCityTableComponent implements OnInit {
     }
 
     loadGame() {
-        this.auth.getGameList();
+        let gameList = [];
+        let gameListSuccess = (res: any) => {
+            gameList = res['data'];
+            console.log(gameList);
+            let config = new MatDialogConfig();
+            config.data = gameList;
+            this.dialog.open(GameListComponent, config);
+        }
+
+        this.auth.getGameList().subscribe(
+            res => gameListSuccess(res)
+        );
     }
 
     private dec2hex (dec: any) {

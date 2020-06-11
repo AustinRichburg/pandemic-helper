@@ -8,11 +8,12 @@ import { AppRoutingModule } from '../app-routing.module';
 import { FormsModule } from '@angular/forms';
 import { NotesComponent, NoteContentComponent } from './notes/notes.component';
 import { MatDialogModule } from '@angular/material/dialog';
+import { GameListComponent } from './game-list/game-list.component';
 
 
 
 @NgModule({
-    declarations: [InfectionRateComponent, LoginComponent, SignupComponent, NotesComponent, NoteContentComponent],
+    declarations: [InfectionRateComponent, LoginComponent, SignupComponent, NotesComponent, NoteContentComponent, GameListComponent],
     imports: [
         AppRoutingModule,
         CommonModule,

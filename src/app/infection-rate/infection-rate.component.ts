@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Rate } from '../constants';
-import { GameService } from '../game.service';
+import { DeckService } from '../deck.service';
 
 @Component({
     selector: 'app-infection-rate',
@@ -12,7 +12,7 @@ export class InfectionRateComponent implements OnInit {
     rates: number[];
     isCurrent: boolean;
 
-    constructor(private gameService: GameService) { }
+    constructor(private deck: DeckService) { }
 
     ngOnInit() {
         this.rates = Rate;

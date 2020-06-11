@@ -10,6 +10,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { VanillaGameRoutingModule } from './vanilla-game-routing.module';
 import { MatSortModule } from '@angular/material/sort';
 import { NotesComponent, NoteContentComponent } from '../shared/notes/notes.component';
+import { GameListComponent } from '../shared/game-list/game-list.component';
 
 @NgModule({
     declarations: [
@@ -25,6 +26,6 @@ import { NotesComponent, NoteContentComponent } from '../shared/notes/notes.comp
         MatButtonModule,
         MatSortModule
     ],
-    entryComponents: [GameOverModalComponent, NotesComponent, NoteContentComponent]
+    entryComponents: [GameOverModalComponent, NotesComponent, NoteContentComponent, GameListComponent]
 })
 export class VanillaGameModule { }

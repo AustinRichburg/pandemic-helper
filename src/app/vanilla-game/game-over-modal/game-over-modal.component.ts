@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { MatDialogRef } from '@angular/material/dialog';
-import { GameService } from '../../game.service';
+import { DeckService } from 'src/app/deck.service';
 
 @Component({
     selector: 'app-game-over-modal',
@@ -10,13 +10,13 @@ import { GameService } from '../../game.service';
 export class GameOverModalComponent implements OnInit {
 
   constructor(public dialogRef: MatDialogRef<GameOverModalComponent>,
-              private gameService: GameService) { }
+              private deck: DeckService) { }
 
     ngOnInit() {
     }
 
     newGame() {
-        this.gameService.newGame();
+        this.deck.newGame();
         this.dialogRef.close();
     }
 

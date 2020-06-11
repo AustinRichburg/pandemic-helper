@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
 import { User } from './models/user';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
@@ -90,7 +90,7 @@ export class AuthService {
             return;
         }
 
-        // TODO: add remote game logic here
+        this.http.post(this.apiUrl + 'game/remote', {});
     }
 
     public saveGame(game: Object) : void {
@@ -105,10 +105,8 @@ export class AuthService {
         );
     }
 
-    public getGameList() : void {
-        this.http.get(this.apiUrl + 'game').subscribe(
-            res => console.log(res)
-        );
+    public getGameList() : Observable<Object> {
+        return this.http.get(this.apiUrl + 'game');
     }
 
     private setToken(username: string, token: string) : void {
