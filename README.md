@@ -3,5 +3,6 @@ An interface to help you get through a game of pandemic by keeping track of the 
 Built using Angular and Django.
 
 TODO:
-1) Add feature for multiple people to view a session
+1) Finish feature allowing remote, multi-user games
+2) Create undo feature for the deck
 
