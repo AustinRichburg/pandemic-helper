@@ -21,6 +21,7 @@ export class VanillaCityTableComponent implements OnInit {
     columns = ['name', 'chance', 'totalOfCard', 'numInPiles', 'actions', 'notes'];
     isGameOver: boolean;
     title: string = "Pandemic Helper - Vanilla";
+    playerList: string[];
 
     @ViewChild(MatSort, {static: true}) sort: MatSort;
 
@@ -74,6 +75,9 @@ export class VanillaCityTableComponent implements OnInit {
 
     startRemoteGame() {
         this.auth.startRemoteGame();
+        this.deckService.getPlayers().subscribe(
+            (players) => this.playerList = players
+        );
     }
 
     saveGame() {

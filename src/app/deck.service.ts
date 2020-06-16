@@ -29,6 +29,10 @@ export class DeckService {
     /* The current epidemic round. */
     private epidemicIndex: number;
 
+    private gameSocket: WebSocket;
+
+    private playerList: BehaviorSubject<string[]>;
+
     constructor() {
         this.index = new BehaviorSubject(0);
         this.newGame();
@@ -68,7 +72,7 @@ export class DeckService {
      * Logic for the card that was drawn. Increments current totals and decrements previous totals.
      * @param name The name of the city that was drawn.
      */
-    public drawCard(name: string) : void {
+    public drawCard(name: string, received: boolean = false) : void {
 
         if (!this.deck[name].draw(this.index)) {
             return;
@@ -81,6 +85,13 @@ export class DeckService {
         // If this was the last card in the pile for a round, decrement the index so we can go back to the pile before that one.
         if (this.totals[this.index.value] === 0) {
             this.index.next(this.index.value - 1);
+        }
+
+        if (this.gameSocket !== undefined && !received) {
+            this.gameSocket.send(JSON.stringify({
+                type: 'update_deck',
+                data: name
+            }));
         }
     }
 
@@ -124,6 +135,51 @@ export class DeckService {
         this.epidemicIndex = 0;
 
         this.deck = this.initDeck();
+    }
+
+    public remoteGame() : void {
+        // Create the new websocket.
+        this.gameSocket = new WebSocket(
+            'ws://'
+            + 'localhost:8000'
+            + '/ws/remote/'
+            + '123?token=' + JSON.parse(localStorage.getItem('user')).token
+        );
+
+        this.playerList = new BehaviorSubject([]);
+
+        // Executes when the socket has successfully opened.
+        this.gameSocket.onopen = (e) => {
+            console.log('connectd')
+        };
+
+        // Executes when the socket sends data back.
+        this.gameSocket.onmessage = (e) => {
+            const data = JSON.parse(e.data);
+            console.log(data);
+            switch (data.type) {
+                case 'player_list':
+                    this.updatePlayers(data.data);
+                    break;
+                case 'draw':
+                    if (data.from === JSON.parse(localStorage.getItem('user')).username) break;
+                    this.drawCard(data.data, true);
+                    break;
+            }
+        };
+
+        // Executes when the socket has successfully closed.
+        this.gameSocket.onclose = (e) => {
+            console.log('disconnected')
+        };
+    }
+
+    private updatePlayers(playerList: string[]) : void {
+        this.playerList.next(playerList);
+    }
+
+    public getPlayers() : BehaviorSubject<string[]> {
+        return this.playerList;
     }
 
     /**

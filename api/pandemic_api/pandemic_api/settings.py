@@ -40,7 +40,8 @@ INSTALLED_APPS = [
     'corsheaders',
     'rest_framework',
     'rest_framework.authtoken',
-    'game'
+    'game',
+    'channels'
 ]
 
 MIDDLEWARE = [
@@ -80,6 +81,13 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'pandemic_api.wsgi.application'
+ASGI_APPLICATION = "pandemic_api.routing.application"
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels.layers.InMemoryChannelLayer"
+    }
+}
 
 
 # Database

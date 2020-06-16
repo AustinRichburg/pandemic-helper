@@ -47,3 +47,8 @@
 
 <button (click)="epidemic()" class="vanilla-button btn-epidemic" mat-raised-button color="warn">Epidemic</button>
 <button class="vanilla-button" mat-button [routerLink]="['/rules', 'vanilla']">Rules</button>
+
+<div>
+    <p>Player List</p>
+    <p *ngFor="let player of playerList">{{ player }}</p>
+</div>
