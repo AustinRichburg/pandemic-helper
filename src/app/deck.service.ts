@@ -29,6 +29,8 @@ export class DeckService {
     /* The current epidemic round. */
     private epidemicIndex: number;
 
+    private isWebsocketOpen: BehaviorSubject<boolean> = new BehaviorSubject(false);
+
     private gameSocket: WebSocket;
 
     private playerList: BehaviorSubject<string[]>;
@@ -78,6 +80,13 @@ export class DeckService {
             return;
         }
 
+        if (this.gameSocket !== undefined && !received) {
+            this.gameSocket.send(JSON.stringify({
+                type: 'update_deck',
+                data: name
+            }));
+        }
+
         // Handle the overall totals for the deck
         this.currTotal++;
         this.totals[this.index.value]--;
@@ -85,13 +94,6 @@ export class DeckService {
         // If this was the last card in the pile for a round, decrement the index so we can go back to the pile before that one.
         if (this.totals[this.index.value] === 0) {
             this.index.next(this.index.value - 1);
-        }
-
-        if (this.gameSocket !== undefined && !received) {
-            this.gameSocket.send(JSON.stringify({
-                type: 'update_deck',
-                data: name
-            }));
         }
     }
 
@@ -150,7 +152,7 @@ export class DeckService {
 
         // Executes when the socket has successfully opened.
         this.gameSocket.onopen = (e) => {
-            console.log('connectd')
+            this.isWebsocketOpen.next(true);
         };
 
         // Executes when the socket sends data back.
@@ -165,13 +167,23 @@ export class DeckService {
                     if (data.from === JSON.parse(localStorage.getItem('user')).username) break;
                     this.drawCard(data.data, true);
                     break;
+                case 'close_game':
+                    this.gameSocket.close();
             }
         };
 
         // Executes when the socket has successfully closed.
         this.gameSocket.onclose = (e) => {
-            console.log('disconnected')
+            this.isWebsocketOpen.next(false);
         };
+    }
+
+    public leaveRemoteGame() : void {
+        this.gameSocket.close();
+    }
+
+    public getIsWebsocketOpen() : BehaviorSubject<boolean> {
+        return this.isWebsocketOpen;
     }
 
     private updatePlayers(playerList: string[]) : void {

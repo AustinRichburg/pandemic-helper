@@ -9,3 +9,11 @@ class Game(models.Model):
 
     class Meta:
       db_table = "game_info"
+
+class RemoteGame(models.Model):
+    id = models.CharField(max_length=6, primary_key=True, unique=True)
+    name = models.CharField(max_length=16)
+    game_master = models.CharField(max_length=100)
+
+    class Meta:
+        db_table = "remote_games"

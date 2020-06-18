@@ -1,8 +1,16 @@
-<div class="btn-group-game-controls">
-    <button mat-raised-button class="btn-game-control" (click)="startRemoteGame()">Create remote game</button>
-    <button mat-raised-button class="btn-game-control" (click)="saveGame()">Save Game</button>
-    <button mat-raised-button class="btn-game-control" (click)="loadGame()">Load Game</button>
+<div class="btn-group-game-controls" *ngIf="isWebsocketOpen else localGameControls">
+    <button mat-raised-button class="btn-game-control" (click)="leaveRemoteGame()">Leave game</button>
 </div>
+
+<ng-template #localGameControls>
+    <div class="btn-group-game-controls">
+        <button mat-raised-button class="btn-game-control" (click)="startRemoteGame()">Create Game</button>
+        <button mat-raised-button class="btn-game-control" (click)="joinRemoteGame()">Join Game</button>
+        <button mat-raised-button class="btn-game-control" (click)="saveGame()">Save Game</button>
+        <button mat-raised-button class="btn-game-control" (click)="loadGame()">Load Game</button>
+    </div>
+</ng-template>
+
 
 <app-infection-rate></app-infection-rate>
 
@@ -48,7 +56,7 @@
 <button (click)="epidemic()" class="vanilla-button btn-epidemic" mat-raised-button color="warn">Epidemic</button>
 <button class="vanilla-button" mat-button [routerLink]="['/rules', 'vanilla']">Rules</button>
 
-<div>
+<div *ngIf="isWebsocketOpen">
     <p>Player List</p>
     <p *ngFor="let player of playerList">{{ player }}</p>
 </div>

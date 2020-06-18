@@ -9,6 +9,8 @@ import { Title } from '@angular/platform-browser';
 
 import { NotesComponent } from 'src/app/shared/notes/notes.component';
 import { AuthService } from 'src/app/auth.service';
+import { CreateMultiComponent } from 'src/app/shared/create-multi/create-multi.component';
+import { JoinMultiComponent } from 'src/app/shared/join-multi/join-multi.component';
 
 @Component({
     selector: 'app-vanilla-city-table',
@@ -22,6 +24,8 @@ export class VanillaCityTableComponent implements OnInit {
     isGameOver: boolean;
     title: string = "Pandemic Helper - Vanilla";
     playerList: string[];
+    isWebsocketOpen: boolean;
+    gameId: string;
 
     @ViewChild(MatSort, {static: true}) sort: MatSort;
 
@@ -39,6 +43,9 @@ export class VanillaCityTableComponent implements OnInit {
                 this.deck.sort = this.sort;
                 this.deck.sortingDataAccessor = this.sortFunc;
             }
+        );
+        this.deckService.getIsWebsocketOpen().subscribe(
+            (websocketOpen) => { this.isWebsocketOpen = websocketOpen }
         );
     }
 
@@ -74,10 +81,42 @@ export class VanillaCityTableComponent implements OnInit {
     }
 
     startRemoteGame() {
-        this.auth.startRemoteGame();
-        this.deckService.getPlayers().subscribe(
-            (players) => this.playerList = players
+        if (!this.auth.isSignedIn()) {
+            return;
+        }
+
+        const success = (res: any) => {
+            if (res) {
+                this.gameId = res;
+                this.deckService.remoteGame();
+                this.deckService.getPlayers().subscribe(
+                    (players) => this.playerList = players
+                );
+            } else {
+                // logic to handle game not created
+            }
+        }
+
+        const config = new MatDialogConfig();
+        config.width = '50%';
+        let createMultiRef = this.dialog.open(CreateMultiComponent, config);
+        createMultiRef.afterClosed().subscribe(
+            result => success(result)
         );
+    }
+
+    joinRemoteGame() {
+        if (!this.auth.isSignedIn()) {
+            return;
+        }
+
+        const config = new MatDialogConfig();
+        config.width = '50%';
+        this.dialog.open(JoinMultiComponent, config);
+    }
+
+    leaveRemoteGame() {
+        this.deckService.leaveRemoteGame();
     }
 
     saveGame() {

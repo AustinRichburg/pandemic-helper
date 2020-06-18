@@ -17,8 +17,12 @@ export class AuthService {
         this.signedIn = new BehaviorSubject(typeof localStorage.getItem("user") === 'string');
     }
 
-    public isSignedIn() : BehaviorSubject<boolean> {
+    public getSignedIn() : BehaviorSubject<boolean> {
         return this.signedIn;
+    }
+
+    public isSignedIn() : boolean {
+        return this.signedIn.value;
     }
 
     /**
@@ -84,7 +88,17 @@ export class AuthService {
         localStorage.removeItem("user");
     }
 
-    public startRemoteGame() : void {
+    public startRemoteGame(name: string) : Observable<Object> {
+        // This is a feature that requires an account.
+        if (!this.signedIn.getValue()) {
+            this.router.navigate(['/login'], {state: {message: 'You need to be logged in to do that.'}});
+            return;
+        }
+
+        return this.http.post(this.apiUrl + 'game/remote/', {name: name});
+    }
+
+    public joinRemoteGame() : void {
         // This is a feature that requires an account.
         if (!this.signedIn.getValue()) {
             this.router.navigate(['/login'], {state: {message: 'You need to be logged in to do that.'}});

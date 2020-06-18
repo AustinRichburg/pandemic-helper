@@ -3,9 +3,15 @@ from asgiref.sync import async_to_sync
 from channels.generic.websocket import JsonWebsocketConsumer
 from rest_framework.authtoken.models import Token
 
+def check_gm_status(self):
+    username = self.user.get_username()
+    if not username in self.player_list or not self.player_list[username]['gm_status']:
+        return False
+    return True
+
 class RemoteGameConsumer(JsonWebsocketConsumer):
 
-    player_list = []
+    player_list = {}
 
     def connect(self):
         self.game_id = self.scope['url_route']['kwargs']['game_id']
@@ -18,7 +24,10 @@ class RemoteGameConsumer(JsonWebsocketConsumer):
         self.user = self.scope["user"]
 
         if self.user != None:
-            self.player_list.append(self.user.get_username())
+            isGM = len(self.player_list) == 0
+            self.player_list[self.user.get_username()] = {'gm_status': isGM}
+        else:
+            self.close()
 
         # Join room group
         async_to_sync(self.channel_layer.group_add)(
@@ -35,11 +44,15 @@ class RemoteGameConsumer(JsonWebsocketConsumer):
         )
 
     def disconnect(self, close_code):
-        self.player_list.remove(self.user.get_username())
+        msg_type = 'update_player_list'
+        if self.player_list[self.user.get_username()]['gm_status']:
+            msg_type = 'close_game'
+
+        del self.player_list[self.user.get_username()]
         async_to_sync(self.channel_layer.group_send)(
             self.game_id,
             {
-                'type': 'update_player_list'
+                'type': msg_type
             }
         )
 
@@ -51,8 +64,16 @@ class RemoteGameConsumer(JsonWebsocketConsumer):
 
     # Receive message from WebSocket
     def receive_json(self, content):
+        auth_routes = ['update_deck']
         msg_type = content.get('type')
         data = content.get('data')
+
+        if msg_type in auth_routes and not check_gm_status(self):
+            self.send_json({
+                'type': 'no_auth',
+                'data': 'You are not authorized to do that.'
+            })
+            return
 
         # Send game info to all clients
         async_to_sync(self.channel_layer.group_send)(
@@ -64,11 +85,11 @@ class RemoteGameConsumer(JsonWebsocketConsumer):
             }
         )
 
-    # Receive message from room group
+    # Sends the updated player list to all players when a player enters or leaves the game
     def update_player_list(self, event):
         # Send message to WebSocket
         self.send_json({
-            'data': self.player_list,
+            'data': list(self.player_list),
             'type': 'player_list',
         })
 
@@ -78,3 +99,10 @@ class RemoteGameConsumer(JsonWebsocketConsumer):
             'data': event.get('data'),
             'from': event.get('from')
         })
+
+    def close_game(self, event):
+        self.send_json({
+            'type': 'close_game'
+        })
+
+        

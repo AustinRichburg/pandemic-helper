@@ -9,11 +9,13 @@ import { FormsModule } from '@angular/forms';
 import { NotesComponent, NoteContentComponent } from './notes/notes.component';
 import { MatDialogModule } from '@angular/material/dialog';
 import { GameListComponent } from './game-list/game-list.component';
+import { CreateMultiComponent } from './create-multi/create-multi.component';
+import { JoinMultiComponent } from './join-multi/join-multi.component';
 
 
 
 @NgModule({
-    declarations: [InfectionRateComponent, LoginComponent, SignupComponent, NotesComponent, NoteContentComponent, GameListComponent],
+    declarations: [InfectionRateComponent, LoginComponent, SignupComponent, NotesComponent, NoteContentComponent, GameListComponent, CreateMultiComponent, JoinMultiComponent],
     imports: [
         AppRoutingModule,
         CommonModule,

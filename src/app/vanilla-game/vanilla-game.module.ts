@@ -11,6 +11,8 @@ import { VanillaGameRoutingModule } from './vanilla-game-routing.module';
 import { MatSortModule } from '@angular/material/sort';
 import { NotesComponent, NoteContentComponent } from '../shared/notes/notes.component';
 import { GameListComponent } from '../shared/game-list/game-list.component';
+import { CreateMultiComponent } from '../shared/create-multi/create-multi.component';
+import { JoinMultiComponent } from '../shared/join-multi/join-multi.component';
 
 @NgModule({
     declarations: [
@@ -26,6 +28,13 @@ import { GameListComponent } from '../shared/game-list/game-list.component';
         MatButtonModule,
         MatSortModule
     ],
-    entryComponents: [GameOverModalComponent, NotesComponent, NoteContentComponent, GameListComponent]
+    entryComponents: [
+        GameOverModalComponent,
+        NotesComponent,
+        NoteContentComponent,
+        GameListComponent,
+        CreateMultiComponent,
+        JoinMultiComponent
+    ]
 })
 export class VanillaGameModule { }
