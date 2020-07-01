@@ -26,6 +26,7 @@ export class VanillaCityTableComponent implements OnInit {
     playerList: string[];
     isWebsocketOpen: boolean;
     gameId: string;
+    isGameMaster: boolean;
 
     @ViewChild(MatSort, {static: true}) sort: MatSort;
 
@@ -88,9 +89,12 @@ export class VanillaCityTableComponent implements OnInit {
         const success = (res: any) => {
             if (res) {
                 this.gameId = res;
-                this.deckService.remoteGame();
+                this.deckService.remoteGame(this.gameId, true);
                 this.deckService.getPlayers().subscribe(
                     (players) => this.playerList = players
+                );
+                this.deckService.getIsGM().subscribe(
+                    (isGM) => this.isGameMaster = isGM
                 );
             } else {
                 // logic to handle game not created
@@ -110,9 +114,26 @@ export class VanillaCityTableComponent implements OnInit {
             return;
         }
 
+        const success = (res: any) => {
+            if (res) {
+                this.gameId = res.id;
+                console.log(res.id)
+                this.deckService.remoteGame(this.gameId, false);
+                this.deckService.getPlayers().subscribe(
+                    (players) => this.playerList = players
+                );
+                this.deckService.getIsGM().subscribe(
+                    (isGM) => this.isGameMaster = isGM
+                );
+            }
+        };
+
         const config = new MatDialogConfig();
         config.width = '50%';
-        this.dialog.open(JoinMultiComponent, config);
+        let joinMultiRef = this.dialog.open(JoinMultiComponent, config);
+        joinMultiRef.afterClosed().subscribe(
+            result => success(result)
+        );
     }
 
     leaveRemoteGame() {
@@ -143,6 +164,7 @@ export class VanillaCityTableComponent implements OnInit {
         );
     }
 
+    //TODO: move this to auth service
     private dec2hex (dec: any) {
         return ('0' + dec.toString(16)).substr(-2)
     }

@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { MatDialogRef } from '@angular/material/dialog';
-import { DeckService } from 'src/app/deck.service';
 import { AuthService } from 'src/app/auth.service';
 
 @Component({
@@ -10,15 +9,20 @@ import { AuthService } from 'src/app/auth.service';
 })
 export class CreateMultiComponent implements OnInit {
 
-    name: string;
+    name: string = "test";
+    error: string;
 
     constructor(public dialogRef: MatDialogRef<CreateMultiComponent>,
-        private deck: DeckService,
         private auth: AuthService) { }
 
     ngOnInit() { }
 
     createRemoteGame() : void {
+        if (this.name.trim() == "") {
+            this.error = "Please enter a valid name.";
+            return;
+        }
+
         let success = (res: any) => {
             console.log(res);
             this.dialogRef.close(res.id);

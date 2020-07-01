@@ -35,6 +35,10 @@ export class DeckService {
 
     private playerList: BehaviorSubject<string[]>;
 
+    private isGameMaster: BehaviorSubject<boolean> = new BehaviorSubject(false);
+
+    private gameHistory: string[];
+
     constructor() {
         this.index = new BehaviorSubject(0);
         this.newGame();
@@ -87,6 +91,8 @@ export class DeckService {
             }));
         }
 
+        this.gameHistory.push(name + ' was drawn.');
+
         // Handle the overall totals for the deck
         this.currTotal++;
         this.totals[this.index.value]--;
@@ -104,6 +110,7 @@ export class DeckService {
      */
     public epidemic() : boolean {
         this.epidemicIndex++;
+        this.gameHistory.push('Epidemic ' + this.epidemicIndex + ' occured.');
 
         if (this.isGameOver()) {
             return true;
@@ -135,17 +142,18 @@ export class DeckService {
         this.totals = [].fill(0, Rate.length);
         this.currTotal = 0;
         this.epidemicIndex = 0;
+        this.gameHistory = [];
 
         this.deck = this.initDeck();
     }
 
-    public remoteGame() : void {
+    public remoteGame(groupId: string, isGM: boolean) : void {
         // Create the new websocket.
         this.gameSocket = new WebSocket(
             'ws://'
             + 'localhost:8000'
             + '/ws/remote/'
-            + '123?token=' + JSON.parse(localStorage.getItem('user')).token
+            + groupId + '?token=' + JSON.parse(localStorage.getItem('user')).token
         );
 
         this.playerList = new BehaviorSubject([]);
@@ -153,6 +161,7 @@ export class DeckService {
         // Executes when the socket has successfully opened.
         this.gameSocket.onopen = (e) => {
             this.isWebsocketOpen.next(true);
+            this.isGameMaster.next(isGM);
         };
 
         // Executes when the socket sends data back.
@@ -176,6 +185,10 @@ export class DeckService {
         this.gameSocket.onclose = (e) => {
             this.isWebsocketOpen.next(false);
         };
+    }
+
+    public getIsGM() : BehaviorSubject<boolean> {
+        return this.isGameMaster;
     }
 
     public leaveRemoteGame() : void {
@@ -285,6 +298,10 @@ export class DeckService {
      */
     public getNotes(city: string) : string[] {
         return this.deck[city].notes;
+    }
+
+    public getGameHistory() : Observable<string[]> {
+        return of(this.gameHistory);
     }
     
 }

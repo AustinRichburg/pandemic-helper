@@ -11,11 +11,21 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { GameListComponent } from './game-list/game-list.component';
 import { CreateMultiComponent } from './create-multi/create-multi.component';
 import { JoinMultiComponent } from './join-multi/join-multi.component';
+import { GameHistoryComponent } from './game-history/game-history.component';
 
 
 
 @NgModule({
-    declarations: [InfectionRateComponent, LoginComponent, SignupComponent, NotesComponent, NoteContentComponent, GameListComponent, CreateMultiComponent, JoinMultiComponent],
+    declarations: [
+        InfectionRateComponent,
+        LoginComponent,
+        SignupComponent, NotesComponent,
+        NoteContentComponent,
+        GameListComponent,
+        CreateMultiComponent,
+        JoinMultiComponent,
+        GameHistoryComponent
+    ],
     imports: [
         AppRoutingModule,
         CommonModule,
@@ -30,7 +40,8 @@ import { JoinMultiComponent } from './join-multi/join-multi.component';
         SignupComponent,
         NotesComponent,
         MatDialogModule,
-        NoteContentComponent
+        NoteContentComponent,
+        GameHistoryComponent
     ]
 })
 export class SharedModule { }

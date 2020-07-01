@@ -2,6 +2,8 @@ import urllib.parse
 from asgiref.sync import async_to_sync
 from channels.generic.websocket import JsonWebsocketConsumer
 from rest_framework.authtoken.models import Token
+from channels.db import database_sync_to_async
+from .models import RemoteGame
 
 def check_gm_status(self):
     username = self.user.get_username()
@@ -47,6 +49,7 @@ class RemoteGameConsumer(JsonWebsocketConsumer):
         msg_type = 'update_player_list'
         if self.player_list[self.user.get_username()]['gm_status']:
             msg_type = 'close_game'
+            RemoteGame.objects.filter(id=self.game_id).delete()
 
         del self.player_list[self.user.get_username()]
         async_to_sync(self.channel_layer.group_send)(
@@ -104,5 +107,6 @@ class RemoteGameConsumer(JsonWebsocketConsumer):
         self.send_json({
             'type': 'close_game'
         })
+        
 
         

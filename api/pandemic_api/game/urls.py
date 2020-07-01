@@ -1,8 +1,11 @@
-from django.urls import path
+from django.urls import path, re_path
+from rest_framework.urlpatterns import format_suffix_patterns
 
 from . import views
 
 urlpatterns = [
-    path('', views.GameView.as_view(), name='game'),
-    path('remote/', views.RemoteGameView.as_view(), name='game'),
+    path('', views.GameView.as_view()),
+    re_path('remote/(?:(?P<game_id>\w+)/)?$', views.RemoteGameView.as_view())
 ]
+
+urlpatterns = format_suffix_patterns(urlpatterns)

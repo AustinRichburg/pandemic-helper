@@ -98,14 +98,16 @@ export class AuthService {
         return this.http.post(this.apiUrl + 'game/remote/', {name: name});
     }
 
-    public joinRemoteGame() : void {
+    public joinRemoteGame(gameId: string) : Observable<Object> {
         // This is a feature that requires an account.
         if (!this.signedIn.getValue()) {
             this.router.navigate(['/login'], {state: {message: 'You need to be logged in to do that.'}});
             return;
         }
 
-        this.deck.remoteGame();
+        // validate the game ID here
+
+        return this.http.get(this.apiUrl + 'game/remote/' + gameId + '/');
     }
 
     public saveGame(game: Object) : void {
