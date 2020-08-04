@@ -1,7 +1,7 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { GameOverModalComponent } from './game-over-modal.component';
-import { MatDialogRef, MatDialogModule } from '@angular/material';
+import { MatDialogRef, MatDialogModule } from '@angular/material/dialog';
 import { DeckService } from 'src/app/deck.service';
 import { By } from '@angular/platform-browser';
 

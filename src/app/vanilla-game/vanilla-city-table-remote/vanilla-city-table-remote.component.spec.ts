@@ -2,7 +2,8 @@ import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { VanillaCityTableRemoteComponent } from './vanilla-city-table-remote.component';
 import { InfectionRateComponent } from 'src/app/infection-rate/infection-rate.component';
-import { MatTableModule, MatDialogModule, MatDialogRef } from '@angular/material';
+import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import { MatTableModule } from '@angular/material/table';
 import { RouterTestingModule } from '@angular/router/testing';
 import { GameHistoryComponent } from 'src/app/shared/game-history/game-history.component';
 import { SnackbarComponent } from 'src/app/shared/snackbar/snackbar.component';

@@ -1,7 +1,7 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { NotesComponent, NoteContentComponent } from './notes.component';
-import { MatDialogRef, MatDialogModule, MAT_DIALOG_DATA, MatDialog } from '@angular/material';
+import { MatDialogRef, MatDialogModule, MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog';
 import { DeckService } from 'src/app/deck.service';
 import { By } from '@angular/platform-browser';
 import { FormsModule } from '@angular/forms';
