@@ -6,11 +6,21 @@
 <div class="user-control-content">
     <p class="header">Log In</p>
 
-    <form (ngSubmit)="login()" #loginForm="ngForm">
+    <form (ngSubmit)="login()">
         <div class="form-block">
             <label for="email">Email</label>
             <input type="text" name="email" id="email" [(ngModel)]="user.username" #email="ngModel" required>
         </div>
+        
+        <div class="form-error" *ngIf="email.invalid && (email.dirty || email.touched)">
+            <div class="form-error-content" *ngIf="email.errors.required">
+                Field required.
+            </div>
+            <div class="form-error-content" *ngIf="email.errors.email">
+                Must be a valid email.
+            </div>
+        </div>
+
         <div class="form-block">
             <label for="password">Password</label>
             <input type="text" name="password" id="password" [(ngModel)]="user.password" #password="ngModel" required>

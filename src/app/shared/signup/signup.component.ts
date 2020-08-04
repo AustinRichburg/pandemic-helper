@@ -1,5 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
 import { User } from 'src/app/models/user';
 import { AuthService } from 'src/app/auth.service';
 
@@ -26,7 +25,7 @@ export class SignupComponent implements OnInit {
     /* Regex check for whitespace */
     whitespace: RegExp = /[\s\n\r\t\0]/g
 
-    constructor(private http: HttpClient, private auth: AuthService) { }
+    constructor(private auth: AuthService) { }
 
     ngOnInit() { }
 

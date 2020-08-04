@@ -5,8 +5,8 @@
             <label for="">Enter Game ID: </label>
             <input type="text" [(ngModel)]="gameId">
         </div>
-        <button (click)="joinRemoteGame()">Join</button>
-        <button (click)="dialogRef.close()">Cancel</button>
+        <button mat-button (click)="joinRemoteGame()">Join</button>
+        <button mat-button (click)="dialogRef.close()">Cancel</button>
     </div>
     <div *ngIf="error" class="error-message">{{ error }}</div>
 </div>

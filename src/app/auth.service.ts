@@ -10,13 +10,19 @@ import { DeckService } from './deck.service';
 })
 export class AuthService {
 
+    /* API url, obviously will remove this when deployed. */
     private apiUrl: string = 'http://127.0.0.1:8000/';
+
+    /* Source of truth for whether user is signed in */
     private signedIn: BehaviorSubject<boolean>;
 
     constructor(private http: HttpClient, private router: Router, private deck: DeckService) {
         this.signedIn = new BehaviorSubject(typeof localStorage.getItem("user") === 'string');
     }
 
+    /**
+     * Returns if user is signed in.
+     */
     public getSignedIn() : BehaviorSubject<boolean> {
         return this.signedIn;
     }
@@ -60,6 +66,7 @@ export class AuthService {
      * @param user The user to signup. Two properties: username and password.
      */
     public signUp(user: User) : void {
+        console.log('heyo2');
         // If the user is logged in, return true.
         if (this.signedIn.getValue()) {
             return;
@@ -83,11 +90,18 @@ export class AuthService {
         );
     }
 
+    /**
+     * Logs the user out and removes their cookie.
+     */
     public logout() : void {
         this.signedIn.next(false);
         localStorage.removeItem("user");
     }
 
+    /**
+     * Begins a remote game that other users can join.
+     * @param name Name of the remote game.
+     */
     public startRemoteGame(name: string) : Observable<Object> {
         // This is a feature that requires an account.
         if (!this.signedIn.getValue()) {
@@ -98,6 +112,10 @@ export class AuthService {
         return this.http.post(this.apiUrl + 'game/remote/', {name: name});
     }
 
+    /**
+     * Allows the user to join a remote game that is in progress.
+     * @param gameId ID of the remote game.
+     */
     public joinRemoteGame(gameId: string) : Observable<Object> {
         // This is a feature that requires an account.
         if (!this.signedIn.getValue()) {
@@ -110,18 +128,23 @@ export class AuthService {
         return this.http.get(this.apiUrl + 'game/remote/' + gameId + '/');
     }
 
-    public saveGame(game: Object) : void {
+    /**
+     * Saves the progress of a game so that it can be resumed later.
+     * @param game Game object.
+     */
+    public saveGame(game: Object) : Observable<any> {
         // This is a feature that requires an account.
         if (!this.signedIn.getValue()) {
             this.router.navigate(['/login'], {state: {message: 'You need to be logged in to do that.'}});
             return;
         }
 
-        this.http.post(this.apiUrl + 'game/', game).subscribe(
-            res => console.log(res)
-        );
+        return this.http.post(this.apiUrl + 'game/', game);
     }
 
+    /**
+     * Requests a list of all saved games assigned to the user.
+     */
     public getGameList() : Observable<Object> {
         // This is a feature that requires an account.
         if (!this.signedIn.getValue()) {
@@ -132,6 +155,11 @@ export class AuthService {
         return this.http.get(this.apiUrl + 'game');
     }
 
+    /**
+     * Sets the user's token to client memory.
+     * @param username Username.
+     * @param token The user's auth token.
+     */
     private setToken(username: string, token: string) : void {
         localStorage.setItem("user", JSON.stringify({username: username, token: token}));
     }

@@ -1,5 +1,4 @@
-import { Component, OnInit, ViewChild, AfterViewInit } from '@angular/core';
-import { DeckService } from '../../deck.service';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { GameOverModalComponent } from '../game-over-modal/game-over-modal.component';
 import { GameListComponent } from '../../shared/game-list/game-list.component';
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
@@ -9,36 +8,44 @@ import { Title } from '@angular/platform-browser';
 
 import { NotesComponent } from 'src/app/shared/notes/notes.component';
 import { AuthService } from 'src/app/auth.service';
-import { CreateMultiComponent } from 'src/app/shared/create-multi/create-multi.component';
-import { JoinMultiComponent } from 'src/app/shared/join-multi/join-multi.component';
-import { Router } from '@angular/router';
-import { SnackbarComponent } from 'src/app/shared/snackbar/snackbar.component';
+import { Router, ActivatedRoute } from '@angular/router';
+import { DeckRemoteService } from 'src/app/deck-remote.service';
 
 @Component({
-    selector: 'app-vanilla-city-table',
-    templateUrl: './vanilla-city-table.component.html',
-    styleUrls: ['./vanilla-city-table.component.scss']
+    selector: 'app-vanilla-city-table-remote',
+    templateUrl: './vanilla-city-table-remote.component.html',
+    styleUrls: ['./vanilla-city-table-remote.component.scss']
 })
-export class VanillaCityTableComponent implements OnInit, AfterViewInit {
-
-    @ViewChild(MatSort, {static: true}) sort: MatSort;
-    @ViewChild(SnackbarComponent, {static: true}) snackbar: SnackbarComponent;
+export class VanillaCityTableRemoteComponent implements OnInit {
 
     deck: MatTableDataSource<Object>;
     columns = ['name', 'chance', 'totalOfCard', 'numInPiles', 'actions', 'notes'];
     isGameOver: boolean;
     title: string = "Pandemic Helper - Vanilla";
-    msg = "test";
+    playerList: string[];
+    isWebsocketOpen: boolean;
+    gameId: string;
+    isGameMaster: boolean;
+    state: Object;
 
-    constructor(private deckService: DeckService,
+    @ViewChild(MatSort, {static: true}) sort: MatSort;
+
+    constructor(private deckService: DeckRemoteService,
                 private titleService: Title,
                 private auth: AuthService,
                 public dialog: MatDialog,
-                private router: Router) {}
+                private router: Router,
+                private route: ActivatedRoute) {
+                    this.state = this.router.getCurrentNavigation().extras.state;
+                }
 
     ngOnInit() {
         this.titleService.setTitle(this.title);
         this.isGameOver = false;
+        this.gameId = this.route.snapshot.paramMap.get('gameId');
+        this.isGameMaster = this.state && this.state.hasOwnProperty('isGM') && this.state['isGM'];
+        this.deckService.remoteGame(this.gameId, this.isGameMaster);
+
         this.deckService.getDeck().subscribe(
             (deck) => {
                 this.deck = new MatTableDataSource(deck);
@@ -46,10 +53,18 @@ export class VanillaCityTableComponent implements OnInit, AfterViewInit {
                 this.deck.sortingDataAccessor = this.sortFunc;
             }
         );
-    }
 
-    ngAfterViewInit() {
-        this.displaySnackbar = (msg: string) => { this.snackbar.displayMessage(msg) }
+        this.deckService.getIsWebsocketOpen().subscribe(
+            (websocketOpen) => this.isWebsocketOpen = websocketOpen
+        );
+        
+        this.deckService.getPlayers().subscribe(
+            (players) => this.playerList = players
+        );
+
+        this.deckService.getIsGM().subscribe(
+            (isGM) => this.isGameMaster = isGM
+        );
     }
 
     draw(name: string) {
@@ -74,6 +89,10 @@ export class VanillaCityTableComponent implements OnInit, AfterViewInit {
     }
 
     openNotes(city: string) {
+        const success = (res) => {
+            console.log(res);
+        };
+
         const config = new MatDialogConfig();
         config.width = '50%';
         config.data = {
@@ -81,49 +100,15 @@ export class VanillaCityTableComponent implements OnInit, AfterViewInit {
             notes: this.deckService.getNotes(city),
             deckService: this.deckService
         };
-        this.dialog.open(NotesComponent, config);
-    }
-
-    startRemoteGame() {
-        if (!this.auth.isSignedIn()) {
-            return;
-        }
-
-        const success = (res: any) => {
-            if (res) {
-                this.router.navigate(['/vanilla/' + res], {state: {isGM: true}});
-            } else {
-                // logic to handle game not created
-            }
-        }
-
-        const config = new MatDialogConfig();
-        config.width = '50%';
-        let createMultiRef = this.dialog.open(CreateMultiComponent, config);
-        createMultiRef.afterClosed().subscribe(
-            result => success(result)
+        let dialogRef = this.dialog.open(NotesComponent, config);
+        dialogRef.afterClosed().subscribe(
+            res => success(res)
         );
     }
 
-    joinRemoteGame() {
-        if (!this.auth.isSignedIn()) {
-            return;
-        }
-
-        const success = (res: any) => {
-            if (res) {
-                this.router.navigate(['/vanilla/' + res.id], {state: {isGM: false}});
-            } else {
-                // logic to handle error joining game
-            }
-        };
-
-        const config = new MatDialogConfig();
-        config.width = '50%';
-        let joinMultiRef = this.dialog.open(JoinMultiComponent, config);
-        joinMultiRef.afterClosed().subscribe(
-            result => success(result)
-        );
+    leaveRemoteGame() {
+        this.deckService.leaveRemoteGame();
+        this.router.navigate(['/vanilla']);
     }
 
     saveGame() {
@@ -133,9 +118,7 @@ export class VanillaCityTableComponent implements OnInit, AfterViewInit {
             name: 'test',
             game: gameInfo
         }
-        this.auth.saveGame(game).subscribe(
-            res => this.displaySnackbar('Game saved.')
-        );
+        this.auth.saveGame(game);
     }
 
     loadGame() {
@@ -153,7 +136,6 @@ export class VanillaCityTableComponent implements OnInit, AfterViewInit {
     }
 
     //TODO: move this to auth service
-    // Logic to create unique game ID to identify saved games
     private dec2hex (dec: any) {
         return ('0' + dec.toString(16)).substr(-2)
     }
@@ -162,10 +144,6 @@ export class VanillaCityTableComponent implements OnInit, AfterViewInit {
         var arr = new Uint8Array((len || 40) / 2)
         window.crypto.getRandomValues(arr)
         return Array.from(arr, this.dec2hex).join('')
-    }
-
-    displaySnackbar(msg: string) {
-        return;
     }
 
 }

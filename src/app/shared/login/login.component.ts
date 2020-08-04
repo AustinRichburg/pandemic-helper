@@ -11,12 +11,14 @@ import { Router } from '@angular/router';
 })
 export class LoginComponent implements OnInit {
 
-    apiUrl: string = 'http://127.0.0.1:8000/';
-    user: User = new User('', '');
-    state: Object;
-
     /* Regex validating email format */
-    emailValidation: RegExp = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    readonly emailValidation: RegExp = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+
+    readonly apiUrl: string = 'http://127.0.0.1:8000/';
+
+    user: User = new User('', '');
+
+    state: Object;
 
     constructor(private auth: AuthService, private router: Router) {
         this.state = this.router.getCurrentNavigation().extras.state;
@@ -25,7 +27,7 @@ export class LoginComponent implements OnInit {
     ngOnInit() { }
 
     login() {
-        // Validate the email is properly formatted and valid email
+        // Validate the email is properly formatted and valid
         const email = this.user.username.toLowerCase();
 
         if (!this.emailValidation.test(String(email))) {

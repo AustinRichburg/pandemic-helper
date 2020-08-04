@@ -1,5 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
 import { AuthService } from '../auth.service';
 
 @Component({
@@ -9,9 +8,10 @@ import { AuthService } from '../auth.service';
 })
 export class HeaderComponent implements OnInit {
 
+    /* Boolean tracking whether the user is signed in, used to display proper auth links */
     signedIn: boolean;
 
-    constructor(private http: HttpClient, private auth: AuthService) { }
+    constructor(private auth: AuthService) { }
 
     ngOnInit() {
         this.auth.getSignedIn().subscribe(
@@ -19,7 +19,11 @@ export class HeaderComponent implements OnInit {
         );
     }
 
-    logout() {
+    /**
+     * Logs the current user out.
+     */
+    logout() : void {
+        if (!this.signedIn) return;
         this.auth.logout();
     }
 

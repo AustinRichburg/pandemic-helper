@@ -9,7 +9,7 @@ import { AuthService } from 'src/app/auth.service';
 })
 export class CreateMultiComponent implements OnInit {
 
-    name: string = "test";
+    name: string = '';
     error: string;
 
     constructor(public dialogRef: MatDialogRef<CreateMultiComponent>,
@@ -17,10 +17,13 @@ export class CreateMultiComponent implements OnInit {
 
     ngOnInit() { }
 
-    createRemoteGame() : void {
+    /**
+     * Begins a remote game.
+     */
+    createRemoteGame() : boolean {
         if (this.name.trim() == "") {
             this.error = "Please enter a valid name.";
-            return;
+            return false;
         }
 
         let success = (res: any) => {

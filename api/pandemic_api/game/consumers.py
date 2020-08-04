@@ -107,6 +107,26 @@ class RemoteGameConsumer(JsonWebsocketConsumer):
         self.send_json({
             'type': 'close_game'
         })
+
+    def add_note(self, event):
+        city = event.get('data').get('city')
+        note = event.get('data').get('note')
+
+        self.send_json({
+            'type': 'add_note',
+            'data': event.get('data'),
+            'from': event.get('from')
+        })
+
+    def remove_note(self, event):
+        city = event.get('data').get('city')
+        index = event.get('data').get('index')
+
+        self.send_json({
+            'type': 'remove_note',
+            'data': event.get('data'),
+            'from': event.get('from')
+        })
         
 
         

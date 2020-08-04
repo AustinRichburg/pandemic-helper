@@ -14,30 +14,22 @@ import { City } from './City';
 export class DeckService {
 
     /* The deck that contains each city of the game as a City object. */
-    private deck: Object;
+    protected deck: Object;
 
     /* The total amount of cards that were drawn during each past epidemic round. */
-    private totals: number[];
+    protected totals: number[];
 
     /* The amount of cards drawn during the current epidemic round. */
-    private currTotal: number;
+    protected currTotal: number;
 
     /** The index used for the totals array, and subscribed to by all cities so that it can be used for their
     *   individual totals. */
-    private index: BehaviorSubject<number>;
+    protected index: BehaviorSubject<number>;
 
     /* The current epidemic round. */
-    private epidemicIndex: number;
+    protected epidemicIndex: number;
 
-    private isWebsocketOpen: BehaviorSubject<boolean> = new BehaviorSubject(false);
-
-    private gameSocket: WebSocket;
-
-    private playerList: BehaviorSubject<string[]>;
-
-    private isGameMaster: BehaviorSubject<boolean> = new BehaviorSubject(false);
-
-    private gameHistory: string[];
+    protected gameHistory: string[];
 
     constructor() {
         this.index = new BehaviorSubject(0);
@@ -78,17 +70,9 @@ export class DeckService {
      * Logic for the card that was drawn. Increments current totals and decrements previous totals.
      * @param name The name of the city that was drawn.
      */
-    public drawCard(name: string, received: boolean = false) : void {
-
+    public drawCard(name: string) : void {
         if (!this.deck[name].draw(this.index)) {
             return;
-        }
-
-        if (this.gameSocket !== undefined && !received) {
-            this.gameSocket.send(JSON.stringify({
-                type: 'update_deck',
-                data: name
-            }));
         }
 
         this.gameHistory.push(name + ' was drawn.');
@@ -147,66 +131,6 @@ export class DeckService {
         this.deck = this.initDeck();
     }
 
-    public remoteGame(groupId: string, isGM: boolean) : void {
-        // Create the new websocket.
-        this.gameSocket = new WebSocket(
-            'ws://'
-            + 'localhost:8000'
-            + '/ws/remote/'
-            + groupId + '?token=' + JSON.parse(localStorage.getItem('user')).token
-        );
-
-        this.playerList = new BehaviorSubject([]);
-
-        // Executes when the socket has successfully opened.
-        this.gameSocket.onopen = (e) => {
-            this.isWebsocketOpen.next(true);
-            this.isGameMaster.next(isGM);
-        };
-
-        // Executes when the socket sends data back.
-        this.gameSocket.onmessage = (e) => {
-            const data = JSON.parse(e.data);
-            console.log(data);
-            switch (data.type) {
-                case 'player_list':
-                    this.updatePlayers(data.data);
-                    break;
-                case 'draw':
-                    if (data.from === JSON.parse(localStorage.getItem('user')).username) break;
-                    this.drawCard(data.data, true);
-                    break;
-                case 'close_game':
-                    this.gameSocket.close();
-            }
-        };
-
-        // Executes when the socket has successfully closed.
-        this.gameSocket.onclose = (e) => {
-            this.isWebsocketOpen.next(false);
-        };
-    }
-
-    public getIsGM() : BehaviorSubject<boolean> {
-        return this.isGameMaster;
-    }
-
-    public leaveRemoteGame() : void {
-        this.gameSocket.close();
-    }
-
-    public getIsWebsocketOpen() : BehaviorSubject<boolean> {
-        return this.isWebsocketOpen;
-    }
-
-    private updatePlayers(playerList: string[]) : void {
-        this.playerList.next(playerList);
-    }
-
-    public getPlayers() : BehaviorSubject<string[]> {
-        return this.playerList;
-    }
-
     /**
      * Adds a new note for a city.
      * @param city The name of the city.
@@ -248,7 +172,7 @@ export class DeckService {
      * Accepts a string of information about a saved game and turns it into an actual game.
      * @param deck The string information about a deck.
      */
-    public loadNewDeck(deck: string) : void {
+    public loadNewDeck(deck: string) : boolean {
         let loaded = JSON.parse(deck);
         for (let city of loaded.deck) {
             this.deck[city.name].setLoadedValues(city);
@@ -257,6 +181,7 @@ export class DeckService {
         this.totals = loaded.totals;
         this.currTotal - loaded.currTotal;
         this.epidemicIndex = loaded.epidemicIndex;
+        return true;
     }
 
     /**

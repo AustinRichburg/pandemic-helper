@@ -1,7 +1,7 @@
 <div class="user-control-content">
     <p class="header">Create an Account</p>
 
-    <form (ngSubmit)="signUp()" #signupForm="ngForm">
+    <form (ngSubmit)="signUp()">
         <div class="form-block">
             <label for="email">Email</label>
             <input type="email" name="email" id="email" [(ngModel)]="user.username" #email="ngModel" email required>

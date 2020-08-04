@@ -1,8 +1,8 @@
-<div class="btn-group-game-controls">
-    <button mat-raised-button class="btn-game-control" (click)="startRemoteGame()">Create Game</button>
-    <button mat-raised-button class="btn-game-control" (click)="joinRemoteGame()">Join Game</button>
-    <button mat-raised-button class="btn-game-control" (click)="saveGame()">Save Game</button>
-    <button mat-raised-button class="btn-game-control" (click)="loadGame()">Load Game</button>
+<div>
+    <p class="game-id-content">Game ID: <span class="game-id">{{ gameId }}</span></p>
+    <div class="btn-group-game-controls">
+        <button mat-raised-button class="btn-game-control" (click)="leaveRemoteGame()">Leave game</button>
+    </div>
 </div>
 
 <app-infection-rate></app-infection-rate>
@@ -31,14 +31,14 @@
     <ng-container matColumnDef="actions">
         <th mat-header-cell *matHeaderCellDef> Actions </th>
         <td mat-cell *matCellDef="let city">
-            <button mat-raised-button (click)="draw(city.name)" color="accent">Draw</button>
+            <button mat-raised-button (click)="draw(city.name)" color="accent"  [disabled]="isWebsocketOpen && !isGameMaster">Draw</button>
         </td>
     </ng-container>
 
     <ng-container matColumnDef="notes">
         <th mat-header-cell *matHeaderCellDef> Notes </th>
         <td mat-cell *matCellDef="let city">
-            <button mat-button (click)="openNotes(city.name)" [ngClass]="{'highlight': city.notes.length > 0}"> ({{ city.notes.length }}) </button>
+            <button mat-button (click)="openNotes(city.name)"  [ngClass]="{'highlight': city.notes.length > 0}"> ({{ city.notes.length }}) </button>
         </td>
     </ng-container>
 
@@ -49,5 +49,9 @@
 <button (click)="epidemic()" class="vanilla-button btn-epidemic" mat-raised-button color="warn">Epidemic</button>
 <button class="vanilla-button" mat-button [routerLink]="['/rules', 'vanilla']">Open Rulebook</button>
 
+<div *ngIf="isWebsocketOpen">
+    <p>Player List</p>
+    <p *ngFor="let player of playerList">{{ player }}</p>
+</div>
+
 <app-game-history></app-game-history>
-<app-snackbar></app-snackbar>

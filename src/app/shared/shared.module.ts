@@ -12,6 +12,7 @@ import { GameListComponent } from './game-list/game-list.component';
 import { CreateMultiComponent } from './create-multi/create-multi.component';
 import { JoinMultiComponent } from './join-multi/join-multi.component';
 import { GameHistoryComponent } from './game-history/game-history.component';
+import { SnackbarComponent } from './snackbar/snackbar.component';
 
 
 
@@ -24,7 +25,8 @@ import { GameHistoryComponent } from './game-history/game-history.component';
         GameListComponent,
         CreateMultiComponent,
         JoinMultiComponent,
-        GameHistoryComponent
+        GameHistoryComponent,
+        SnackbarComponent
     ],
     imports: [
         AppRoutingModule,
@@ -41,7 +43,8 @@ import { GameHistoryComponent } from './game-history/game-history.component';
         NotesComponent,
         MatDialogModule,
         NoteContentComponent,
-        GameHistoryComponent
+        GameHistoryComponent,
+        SnackbarComponent
     ]
 })
 export class SharedModule { }

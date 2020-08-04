@@ -17,15 +17,15 @@ export class JoinMultiComponent implements OnInit {
 
     ngOnInit() { }
 
-    joinRemoteGame() : void {
-        if (!this.gameId) {
+    joinRemoteGame() : boolean {
+        if (!this.gameId.trim()) {
             this.error = "Please enter a valid game ID.";
-            return;
+            return false;
         }
 
         if (this.gameId.trim().length != 6) {
             this.error = "Game IDs must be 6 characters in length.";
-            return;
+            return false;
         }
 
         this.gameId = this.gameId.toUpperCase();

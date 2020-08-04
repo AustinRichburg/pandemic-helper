@@ -9,9 +9,16 @@ import { Rules } from '../constants';
 })
 export class RulesComponent implements OnInit {
 
+    /* Rules object found in src/app/constants.ts file */
     rules: Object = Rules;
+
+    /* URL param indicating which rulebook to display (ie. legacy, vanilla) */
     ruleSet: string;
+
+    /* Text user is searching */
     searchText: string;
+
+    /* Array of all searchable HTML elements */
     searchableText: NodeListOf<HTMLElement>;
 
     constructor(private route: ActivatedRoute) { }
@@ -21,13 +28,16 @@ export class RulesComponent implements OnInit {
         this.searchText = '';
     }
 
-    ngAfterViewInit(): void {
-        //Called after ngAfterContentInit when the component's view has been initialized. Applies to components only.
-        //Add 'implements AfterViewInit' to the class.
+    ngAfterViewInit() {
         this.searchableText = document.getElementById('rules').querySelectorAll('.section-header, .text-section, .subtext');
     }
 
-    onSearch() {
+    /**
+     * Called on each keystroke of the searchbar. Searches through all elements that have been deemed searchable in the
+     * searchableText array and highlights anything matched against the phrase the user has typed.
+     */
+    onSearch() : void {
+        // If the user deletes the search phrase, remove all highlights
         if (this.searchText.trim() === '') {
             this.searchableText.forEach(element => {
                 element.classList.remove('highlight');
@@ -35,6 +45,7 @@ export class RulesComponent implements OnInit {
             return;
         }
        
+        // Highlights all matching text and activates the dropdowns if necessary
         this.searchableText.forEach(element => {
             if (element.textContent.toLowerCase().includes(this.searchText.toLowerCase())) {
                 element.classList.add('highlight');
@@ -49,8 +60,13 @@ export class RulesComponent implements OnInit {
         });
     }
 
-    toggleSubtext(e) {
+    /**
+     * Toggles the subtext of rules.
+     * @param e The click event.
+     */
+    toggleSubtext(e: any) : void {
         let target = e.target;
+        console.log(e)
         if (target.localName === 'i') {
             target = e.target.parentElement;
         }

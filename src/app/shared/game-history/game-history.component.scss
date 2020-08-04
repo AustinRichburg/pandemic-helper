@@ -1,0 +1,31 @@
+.game-history-content {
+    border: 1px solid black;
+    height: 500px;
+    margin: 10px 30px 80px 10px;
+    width: 33%;
+
+    .game-history-header {
+        background-color: #797979;
+        border-bottom: 1px solid black;
+        font-weight: 500;
+        padding: 8px 0 6px 6px;
+    }
+
+    .game-history {
+        height: 95%;
+        overflow: auto;
+
+        .game-history-node {
+            color: #0f0f0f;
+            padding: 8px 0 8px 6px;
+
+            &:nth-child(even) {
+                background-color: #dddddd;
+            }
+
+            &:nth-child(odd) {
+                background-color: #ffffff;
+            }
+        }
+    }
+}

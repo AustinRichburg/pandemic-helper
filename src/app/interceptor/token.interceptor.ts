@@ -2,6 +2,9 @@ import { Injectable } from '@angular/core';
 import { HttpRequest, HttpHandler, HttpEvent, HttpInterceptor } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
+/**
+ * Intercepts outgoing HTTP requests and adds the user's token if they are authorized.
+ */
 @Injectable()
 export class TokenInterceptor implements HttpInterceptor {
 

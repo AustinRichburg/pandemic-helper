@@ -13,11 +13,13 @@ import { NotesComponent, NoteContentComponent } from '../shared/notes/notes.comp
 import { GameListComponent } from '../shared/game-list/game-list.component';
 import { CreateMultiComponent } from '../shared/create-multi/create-multi.component';
 import { JoinMultiComponent } from '../shared/join-multi/join-multi.component';
+import { VanillaCityTableRemoteComponent } from './vanilla-city-table-remote/vanilla-city-table-remote.component';
 
 @NgModule({
     declarations: [
         VanillaCityTableComponent,
-        GameOverModalComponent
+        GameOverModalComponent,
+        VanillaCityTableRemoteComponent
     ],
     imports: [
         CommonModule,
