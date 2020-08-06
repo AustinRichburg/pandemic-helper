@@ -9,7 +9,7 @@ from rest_framework.decorators import api_view, permission_classes
 from .models import Game, RemoteGame
 
 # View to save and load games
-class GameView(APIView):
+class GameData(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):

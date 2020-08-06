@@ -1,6 +1,8 @@
 <div class="game-history-content">
-    <div class="game-history-header">Game History</div>
-    <div class="game-history">
-        <div class="game-history-node" *ngFor="let history of gameHistory">{{ history }}</div>
+    <div class="game-history-header">Game History<span (click)="hideHistory = !hideHistory" class="hide-history" [ngClass]="{'hidden': hideHistory}"></span></div>
+    <div class="overflow-container" [ngClass]="{'hidden': hideHistory}">
+        <div class="game-history">
+            <div class="game-history-node" *ngFor="let history of gameHistory">{{ history }}</div>
+        </div>
     </div>
 </div>

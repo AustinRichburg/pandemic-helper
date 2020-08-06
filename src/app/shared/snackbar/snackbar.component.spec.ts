@@ -27,7 +27,6 @@ describe('SnackbarComponent', () => {
     it('should display message', () => {
         let snackbar = fixture.debugElement.query(By.css('.snackbar')).nativeElement;
         const isShow = (ele: string) => ele === 'show';
-        console.log(snackbar.classList);
 
         expect(snackbar.classList.contains('show')).toBeFalsy();
 

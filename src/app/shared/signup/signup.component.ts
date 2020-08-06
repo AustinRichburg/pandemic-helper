@@ -34,7 +34,6 @@ export class SignupComponent implements OnInit {
         const email = this.user.username.toLowerCase();
 
         if (!this.emailValidation.test(String(email))) {
-            console.log('not email');
             return;
         }
 
@@ -42,19 +41,16 @@ export class SignupComponent implements OnInit {
         const password = this.user.password.trim();
 
         if (password.length < 6 || password.length > 22) {
-            console.log('password not app length');
             return;
         }
 
         // Password should not contain whitespace
         if (password.search(this.whitespace) > -1) {
-            console.log('whitespace');
             return;
         }
 
         // Passwords should match
         if (!this.passwordsMatch) {
-            console.log('passwords dont match');
             return;
         }
 

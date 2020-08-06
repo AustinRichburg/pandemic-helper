@@ -15,10 +15,15 @@ export class InfectionRateComponent implements OnInit {
     /* Array of number of cards to draw */
     rates: number[];
 
+    epidemic: number;
+
     constructor(private deck: DeckService) { }
 
     ngOnInit() {
         this.rates = Rate;
+        this.deck.getEpidemic().subscribe(
+            index => this.epidemic = index
+        );
     }
 
 }

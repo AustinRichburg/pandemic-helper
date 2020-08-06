@@ -27,7 +27,7 @@ export class DeckService {
     protected index: BehaviorSubject<number>;
 
     /* The current epidemic round. */
-    protected epidemicIndex: number;
+    protected epidemicIndex: BehaviorSubject<number>;
 
     protected gameHistory: string[];
 
@@ -59,7 +59,7 @@ export class DeckService {
     public isGameOver() : boolean {
         let gameOver = false;
 
-        if (this.epidemicIndex >= Rate.length) {
+        if (this.epidemicIndex.value >= Rate.length) {
             gameOver = true;
         }
 
@@ -93,8 +93,8 @@ export class DeckService {
      * that as well.
      */
     public epidemic() : boolean {
-        this.epidemicIndex++;
-        this.gameHistory.push('Epidemic ' + this.epidemicIndex + ' occured.');
+        this.epidemicIndex.next(this.epidemicIndex.value + 1);
+        this.gameHistory.push('Epidemic ' + this.epidemicIndex.value + ' occured.');
 
         if (this.isGameOver()) {
             return true;
@@ -125,7 +125,7 @@ export class DeckService {
         this.index.next(0);
         this.totals = [].fill(0, Rate.length);
         this.currTotal = 0;
-        this.epidemicIndex = 0;
+        this.epidemicIndex = new BehaviorSubject(0);
         this.gameHistory = [];
 
         this.deck = this.initDeck();
@@ -196,7 +196,7 @@ export class DeckService {
      * Gets the current epidemic round.
      * @return number The epidemic round.
      */
-    public getEpidemic() : number {
+    public getEpidemic() : BehaviorSubject<number> {
         return this.epidemicIndex;
     }
 

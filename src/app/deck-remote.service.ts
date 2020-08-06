@@ -79,6 +79,9 @@ export class DeckRemoteService extends DeckService {
                     break;
                 case 'close_game':
                     this.gameSocket.close();
+                default:
+                    console.error('Command not recognized.');
+                    break;
             }
         };
 

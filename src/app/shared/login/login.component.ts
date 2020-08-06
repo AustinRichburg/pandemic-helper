@@ -1,5 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
 import { User } from 'src/app/models/user';
 import { AuthService } from 'src/app/auth.service';
 import { Router } from '@angular/router';
@@ -18,10 +17,10 @@ export class LoginComponent implements OnInit {
 
     user: User = new User('', '');
 
-    state: Object;
+    state: StateInterface;
 
     constructor(private auth: AuthService, private router: Router) {
-        this.state = this.router.getCurrentNavigation().extras.state;
+        this.state = <StateInterface>this.router.getCurrentNavigation().extras.state;
     }
 
     ngOnInit() { }
@@ -38,4 +37,8 @@ export class LoginComponent implements OnInit {
         this.auth.login(this.user);
     }
 
+}
+
+interface StateInterface {
+    message: string;
 }

@@ -49,5 +49,5 @@
 <button (click)="epidemic()" class="vanilla-button btn-epidemic" mat-raised-button color="warn">Epidemic</button>
 <button class="vanilla-button" mat-button [routerLink]="['/rules', 'vanilla']">Open Rulebook</button>
 
-<app-game-history></app-game-history>
+<app-game-history [gameHistory]="gameHistory"></app-game-history>
 <app-snackbar></app-snackbar>

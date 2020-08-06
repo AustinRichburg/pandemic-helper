@@ -17,7 +17,7 @@ export class GameOverModalComponent implements OnInit {
 
     newGame() {
         this.deck.newGame();
-        this.dialogRef.close();
+        this.dialogRef.close(true);
     }
 
 }

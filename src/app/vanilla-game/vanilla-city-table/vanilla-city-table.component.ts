@@ -29,6 +29,7 @@ export class VanillaCityTableComponent implements OnInit, AfterViewInit {
     isGameOver: boolean;
     title: string = "Pandemic Helper - Vanilla";
     msg = "test";
+    gameHistory: string[];
 
     constructor(private deckService: DeckService,
                 private titleService: Title,
@@ -45,6 +46,9 @@ export class VanillaCityTableComponent implements OnInit, AfterViewInit {
                 this.deck.sort = this.sort;
                 this.deck.sortingDataAccessor = this.sortFunc;
             }
+        );
+        this.deckService.getGameHistory().subscribe(
+            history => this.gameHistory = history
         );
     }
 
@@ -85,7 +89,10 @@ export class VanillaCityTableComponent implements OnInit, AfterViewInit {
     }
 
     startRemoteGame() {
-        if (!this.auth.isSignedIn()) {
+        try {
+            this.auth.throwErrorIfNotLoggedIn();
+        } catch (err) {
+            this.router.navigate(['/login'], {state: {message: 'You need to be logged in to do that.'}});
             return;
         }
 
@@ -106,7 +113,10 @@ export class VanillaCityTableComponent implements OnInit, AfterViewInit {
     }
 
     joinRemoteGame() {
-        if (!this.auth.isSignedIn()) {
+        try {
+            this.auth.throwErrorIfNotLoggedIn();
+        } catch (err) {
+            this.router.navigate(['/login'], {state: {message: 'You need to be logged in to do that.'}});
             return;
         }
 
@@ -127,6 +137,13 @@ export class VanillaCityTableComponent implements OnInit, AfterViewInit {
     }
 
     saveGame() {
+        try {
+            this.auth.throwErrorIfNotLoggedIn();
+        } catch (err) {
+            this.router.navigate(['/login'], {state: {message: 'You need to be logged in to do that.'}});
+            return;
+        }
+
         const gameInfo = this.deckService.toString();
         const game = {
             id: this.generateId(30),
@@ -139,6 +156,13 @@ export class VanillaCityTableComponent implements OnInit, AfterViewInit {
     }
 
     loadGame() {
+        try {
+            this.auth.throwErrorIfNotLoggedIn();
+        } catch (err) {
+            this.router.navigate(['/login'], {state: {message: 'You need to be logged in to do that.'}});
+            return;
+        }
+        
         let gameList = [];
         let gameListSuccess = (res: any) => {
             gameList = res['data'];

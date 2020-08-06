@@ -66,7 +66,6 @@ export class AuthService {
      * @param user The user to signup. Two properties: username and password.
      */
     public signUp(user: User) : void {
-        console.log('heyo2');
         // If the user is logged in, return true.
         if (this.signedIn.getValue()) {
             return;
@@ -162,6 +161,27 @@ export class AuthService {
      */
     private setToken(username: string, token: string) : void {
         localStorage.setItem("user", JSON.stringify({username: username, token: token}));
+    }
+
+    public throwErrorIfNotLoggedIn() {
+        if (!this.signedIn.getValue()) {
+            throw new UnauthorizedError('');
+        }
+    }
+
+}
+
+class UnauthorizedError extends Error {
+
+    err: string = 'Something went wrong.';
+
+    constructor(err: string) {
+        super();
+        this.err = err;
+    }
+
+    getError() : string {
+        return this.err;
     }
 
 }

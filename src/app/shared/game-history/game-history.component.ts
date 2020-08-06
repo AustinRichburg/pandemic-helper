@@ -1,6 +1,5 @@
-import { Component, OnInit } from '@angular/core';
-import { DeckService } from 'src/app/deck.service';
-import { DeckRemoteService } from 'src/app/deck-remote.service';
+import { Component, OnInit, Input } from '@angular/core';
+
 
 @Component({
     selector: 'app-game-history',
@@ -9,33 +8,15 @@ import { DeckRemoteService } from 'src/app/deck-remote.service';
 })
 export class GameHistoryComponent implements OnInit {
 
-    gameHistory: string[] = [
-        "Washington was drawn.",
-        "New York was drawn.",
-        "New York was drawn.",
-        "New York was drawn.",
-        "Epidemic 2 occured.",
-        "Jacksonville was drawn.",
-        "Paris was drawn.",
-        "Jacksonville was drawn.",
-        "Cairo was drawn.",
-        "Washington was drawn.",
-        "New York was drawn.",
-        "New York was drawn.",
-        "New York was drawn.",
-        "Epidemic 2 occured.",
-        "Jacksonville was drawn.",
-        "Paris was drawn.",
-        "Jacksonville was drawn.",
-        "Cairo was drawn."
-    ];
+    @Input() gameHistory: string[];
+    hideHistory: boolean = false;
 
-    constructor(private deck: DeckRemoteService) { }
+    constructor() { }
 
-    ngOnInit() {
-        // this.deck.getGameHistory().subscribe(
-        //     (gameHistory) => { this.gameHistory = gameHistory }
-        // );
-    }
+    ngOnInit() { }
+
+    // hideHistory() {
+
+    // }
 
 }
