@@ -30,9 +30,14 @@ class GameData(APIView):
 #View to create and join remote games
 class RemoteGameView(APIView):
     permission_classes = [IsAuthenticated]
+    ID_LENGTH = 6
+
+    def create_game_id(self, len):
+        return ''.join(random.choices(string.ascii_uppercase + string.digits, k=len))
 
     def get(self, request, **kwargs):
-        """Join a remote game (if one is found)
+        """
+        Join a remote game (if one is found)
         """
 
         game_id = kwargs.get('game_id', None)
@@ -46,13 +51,17 @@ class RemoteGameView(APIView):
         return Response({'data': list(game)})
 
     def post(self, request):
-        """Creates a new remote game, generating a unique code that will allow others to join.
+        """
+        Creates a new remote game, generating a unique code that will allow others to join.
         """
 
         req = json.loads(request.body)
-        id = ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))
-        game_name = req['name']
-        game = RemoteGame(id=id, name=game_name, game_master=request.user.get_username())
+        id = self.create_game_id(self.ID_LENGTH)
+
+        while RemoteGame.objects.filter(id=id).values():
+            id = self.create_game_id(self.ID_LENGTH)
+
+        game = RemoteGame(id=id, name='default for now', game_master=request.user.get_username())
         game.save()
         return Response({'data': 'created game', 'id': id})
         

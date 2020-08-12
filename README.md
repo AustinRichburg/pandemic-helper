@@ -1,4 +1,4 @@
-An interface to help you get through a game of pandemic by keeping track of the cards that have been drawn, and what the chance is that they will be drawn again. User can create an account to save/load their game progress and allow other users to spectate the game progress remotely.
+An interface to help you get through a game of pandemic by keeping track of the cards that have been drawn, and what the chance is that they will be drawn again. User can create an account to save/load their game progress and allow other users to join the game remotely.
 
 - - -
 

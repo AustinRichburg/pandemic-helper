@@ -1,6 +1,5 @@
 import { Component, OnInit, Inject } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog';
-import { DeckService } from 'src/app/deck.service';
 
 @Component({
     selector: 'app-game-list',
@@ -23,18 +22,17 @@ export class GameListComponent implements OnInit {
 
     constructor(public dialogRef: MatDialogRef<GameListComponent>,
         @Inject(MAT_DIALOG_DATA) public gameList: DialogData[],
-        public dialog: MatDialog,
-        private deck: DeckService) { }
+        public dialog: MatDialog) { }
 
     ngOnInit() { }
 
     loadGame(deck: string) : void {
-        let success = this.deck.loadNewDeck(deck);
-        if (success) {
-            this.dialogRef.close();
-        } else {
-            // display error
-        }
+        // let success = this.deck.loadNewDeck(deck);
+        // if (success) {
+        //     this.dialogRef.close();
+        // } else {
+        //     // display error
+        // }
     }
 
     format(date: string) : string {

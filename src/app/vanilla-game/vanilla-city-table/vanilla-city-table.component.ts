@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, AfterViewInit } from '@angular/core';
+import { Component, OnInit, ViewChild, AfterViewInit, Injectable } from '@angular/core';
 import { DeckService } from '../../deck.service';
 import { GameOverModalComponent } from '../game-over-modal/game-over-modal.component';
 import { GameListComponent } from '../../shared/game-list/game-list.component';
@@ -9,10 +9,11 @@ import { Title } from '@angular/platform-browser';
 
 import { NotesComponent } from 'src/app/shared/notes/notes.component';
 import { AuthService } from 'src/app/auth.service';
-import { CreateMultiComponent } from 'src/app/shared/create-multi/create-multi.component';
 import { JoinMultiComponent } from 'src/app/shared/join-multi/join-multi.component';
 import { Router } from '@angular/router';
 import { SnackbarComponent } from 'src/app/shared/snackbar/snackbar.component';
+import { WebsocketConfigService } from 'src/app/websocketConfig.service';
+
 
 @Component({
     selector: 'app-vanilla-city-table',
@@ -30,25 +31,48 @@ export class VanillaCityTableComponent implements OnInit, AfterViewInit {
     title: string = "Pandemic Helper - Vanilla";
     msg = "test";
     gameHistory: string[];
+    epidemic_index: number;
+    playerList: string[];
 
     constructor(private deckService: DeckService,
                 private titleService: Title,
                 private auth: AuthService,
                 public dialog: MatDialog,
-                private router: Router) {}
+                private router: Router,
+                private wsConfig: WebsocketConfigService) {}
 
     ngOnInit() {
         this.titleService.setTitle(this.title);
         this.isGameOver = false;
-        this.deckService.getDeck().subscribe(
-            (deck) => {
-                this.deck = new MatTableDataSource(deck);
-                this.deck.sort = this.sort;
-                this.deck.sortingDataAccessor = this.sortFunc;
-            }
-        );
-        this.deckService.getGameHistory().subscribe(
-            history => this.gameHistory = history
+        this.deckService.isGameChange().subscribe(
+            (gameChange) => {
+                if (gameChange) {
+                    this.deckService.getDeck().subscribe(
+                        (deck) => {
+                            this.deck = new MatTableDataSource(deck);
+                            this.deck.sort = this.sort;
+                            this.deck.sortingDataAccessor = this.sortFunc;
+                        }
+                    );
+                    this.deckService.getGameHistory().subscribe(
+                        history => this.gameHistory = history
+                    );
+                    this.deckService.getEpidemic().subscribe(
+                        index => this.epidemic_index = index
+                    );
+                    this.deckService.getGameOver().subscribe(
+                        isGameOver => {
+                            if (isGameOver) {
+                                const config = new MatDialogConfig();
+                                this.dialog.open(GameOverModalComponent, config);
+                            }
+                        }
+                    );
+                    this.deckService.getPlayers().subscribe(
+                        playerList => this.playerList = playerList
+                    );
+                }
+            }  
         );
     }
 
@@ -61,55 +85,27 @@ export class VanillaCityTableComponent implements OnInit, AfterViewInit {
     }
 
     epidemic() : void {
-        this.isGameOver = this.deckService.epidemic();
-        if (this.isGameOver) {
-            const config = new MatDialogConfig();
-            this.dialog.open(GameOverModalComponent, config);
-        }
+        this.deckService.epidemic();
     }
 
     sortFunc(item, header) {
         switch (header) {
             case 'name': return item.name;
-            case 'chance': return parseFloat(item.chance(item));
-            case 'totalOfCard': return item.inDeck(item);
-            case 'numInPiles': return item.currDrawn;
+            case 'chance': return item.chance;
+            case 'totalOfCard': return item.in_deck;
+            case 'numInPiles': return item.curr_drawn;
         }
     }
 
-    openNotes(city: string) {
+    openNotes(city: any) {
         const config = new MatDialogConfig();
         config.width = '50%';
         config.data = {
-            name: city,
-            notes: this.deckService.getNotes(city),
+            name: city.name,
+            notes: this.deckService.getNotes(city.name),
             deckService: this.deckService
         };
         this.dialog.open(NotesComponent, config);
-    }
-
-    startRemoteGame() {
-        try {
-            this.auth.throwErrorIfNotLoggedIn();
-        } catch (err) {
-            this.router.navigate(['/login'], {state: {message: 'You need to be logged in to do that.'}});
-            return;
-        }
-
-        const success = (res: any) => {
-            if (res) {
-                this.router.navigate(['/vanilla/' + res], {state: {isGM: true}});
-            } else {
-                // logic to handle game not created
-            }
-        }
-
-        const config = new MatDialogConfig();
-        config.width = '50%';
-        let createMultiRef = this.dialog.open(CreateMultiComponent, config);
-        createMultiRef.afterClosed().subscribe(
-            result => success(result)
-        );
     }
 
     joinRemoteGame() {
@@ -122,7 +118,8 @@ export class VanillaCityTableComponent implements OnInit, AfterViewInit {
 
         const success = (res: any) => {
             if (res) {
-                this.router.navigate(['/vanilla/' + res.id], {state: {isGM: false}});
+                this.router.navigate(['/vanilla/' + res.id]);
+                this.wsConfig.setGameId(res.id);
             } else {
                 // logic to handle error joining game
             }

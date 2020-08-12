@@ -31,7 +31,6 @@ export class JoinMultiComponent implements OnInit {
         this.gameId = this.gameId.toUpperCase();
 
         const success = (res: any) => {
-            console.log(res);
             this.dialogRef.close({id: this.gameId});
         };
         const error = (err: any) => {

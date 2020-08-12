@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { of, Observable, BehaviorSubject } from 'rxjs';
-import { Cities, Rate } from './constants';
-import { City } from './City';
+import { WebsocketConfigService } from './websocketConfig.service';
 
 /**
  * This is the service that handles all aspects regarding the status of the game and deck. This is the single
@@ -27,43 +26,119 @@ export class DeckService {
     protected index: BehaviorSubject<number>;
 
     /* The current epidemic round. */
-    protected epidemicIndex: BehaviorSubject<number>;
+    protected epidemicIndex: number;
 
     protected gameHistory: string[];
 
-    constructor() {
-        this.index = new BehaviorSubject(0);
-        this.newGame();
+    private isWebsocketOpen: BehaviorSubject<boolean> = new BehaviorSubject(false);
+
+    private gameSocket: WebSocket;
+
+    private playerList: string[];
+
+    private gameChange: BehaviorSubject<boolean> = new BehaviorSubject(false);
+
+    private isGameOver: boolean = false;
+
+    private gameId: string;
+
+    constructor(private wsConfig: WebsocketConfigService) {
+        wsConfig.getGameId().subscribe(
+            gameId => {
+                if (!gameId) return;
+                if (this.gameSocket) this.gameSocket.close();
+                this.connectToSocket(gameId);
+            }
+        );
     }
 
-    /**
-     * Initializes the deck, setting the total of cards and creating each City.
-     * @return Object The newly created deck.
-     */
-    private initDeck() : Object {
-        let total = 0;
-        let deck = {};
+    private connectToSocket(gameId: string) : void {
+        const token = JSON.parse(localStorage.getItem('user')).token || null;
 
-        for (let city of Cities) {
-            deck[city] = new City(city, this);
-            total += 3;
-        }
-        this.totals[0] = total;
-        return deck;
+        if (!token) return;
+
+        this.gameId = gameId;
+
+        // Create the new websocket.
+        this.gameSocket = new WebSocket(
+            'ws://'
+            + 'localhost:8000'
+            + '/ws/remote/'
+            + gameId + '?token=' + token
+        );
+
+        this.playerList = [];
+
+        // Executes when the socket has successfully opened.
+        this.gameSocket.onopen = (e) => {
+            this.isWebsocketOpen.next(true);
+        };
+
+        // Executes when the socket sends data back.
+        this.gameSocket.onmessage = (e) => {
+            const data = JSON.parse(e.data);
+            console.log(data);
+            switch (data.type) {
+                case 'player_list':
+                    this.updatePlayers(data.data);
+                    break;
+                case 'update_game':
+                    this.updateGame(data.data);
+                    break;
+                case 'add_note':
+                    this.deck[data.data.city].notes.push(data.data.note);
+                    break;
+                case 'remove_note':
+                    this.deck[data.data.city].notes.splice(data.data.index, 1);
+                    break;
+                case 'game_over':
+                    this.isGameOver = true;
+                    break;
+                case 'close_game':
+                    this.gameSocket.close();
+                default:
+                    console.error('Command not recognized.');
+                    break;
+            }
+
+            this.gameChange.next(true);
+        };
+
+        // Executes when the socket has successfully closed.
+        this.gameSocket.onclose = (e) => {
+            this.isWebsocketOpen.next(false);
+            this.gameSocket = null;
+        };
     }
 
-    /**
-     * Decides if the game has ended. Game ends when the number of epidemic rounds exceeds the limit.
-     * @return boolean Whether the game is over or not.
-     */
-    public isGameOver() : boolean {
-        let gameOver = false;
+    public isGameChange() : BehaviorSubject<boolean> {
+        return this.gameChange;
+    }
 
-        if (this.epidemicIndex.value >= Rate.length) {
-            gameOver = true;
-        }
+    public getGameOver() : Observable<boolean> {
+        return of(this.isGameOver);
+    }
 
-        return gameOver;
+    private updateGame(game) {
+        this.deck = game.deck;
+        this.epidemicIndex = game.epidemic_index;
+        this.gameHistory = game.game_history;
+    }
+
+    public leaveRemoteGame() : void {
+        this.gameSocket.close();
+    }
+
+    public getIsWebsocketOpen() : BehaviorSubject<boolean> {
+        return this.isWebsocketOpen;
+    }
+
+    public getPlayers() : Observable<string[]> {
+        return of(this.playerList);
+    }
+
+    public updatePlayers(list: string[]) {
+        this.playerList = list;
     }
 
     /**
@@ -71,19 +146,11 @@ export class DeckService {
      * @param name The name of the city that was drawn.
      */
     public drawCard(name: string) : void {
-        if (!this.deck[name].draw(this.index)) {
-            return;
-        }
-
-        this.gameHistory.push(name + ' was drawn.');
-
-        // Handle the overall totals for the deck
-        this.currTotal++;
-        this.totals[this.index.value]--;
-
-        // If this was the last card in the pile for a round, decrement the index so we can go back to the pile before that one.
-        if (this.totals[this.index.value] === 0) {
-            this.index.next(this.index.value - 1);
+        if (this.gameSocket !== undefined) {
+            this.gameSocket.send(JSON.stringify({
+                type: 'draw',
+                data: name
+            }));
         }
     }
 
@@ -92,43 +159,12 @@ export class DeckService {
      * past and present. It is possible for two epidemics to get drawn back-to-back, so there is logic to handle
      * that as well.
      */
-    public epidemic() : boolean {
-        this.epidemicIndex.next(this.epidemicIndex.value + 1);
-        this.gameHistory.push('Epidemic ' + this.epidemicIndex.value + ' occured.');
-
-        if (this.isGameOver()) {
-            return true;
+    public epidemic() : void {
+        if (this.gameSocket !== undefined) {
+            this.gameSocket.send(JSON.stringify({
+                type: 'epidemic'
+            }));
         }
-
-        // In the unlikely event of a back-to-back epidemic, don't do anything
-        if (this.currTotal === 0) {
-            return;
-        }
-
-        // Increment index
-        this.index.next(this.index.value + 1);
-
-        // Add the total of cards drawn this round to the totals array
-        this.totals[this.index.value] = this.currTotal;
-        this.currTotal = 0;
-
-        // Add the number of cities drawn this round to the past drawn array
-        for (let city of Cities) {
-            this.deck[city].handleEpidemic();
-        }
-    }
-
-    /**
-     * Logic to reset all service variables for a new game.
-     */
-    public newGame() : void {
-        this.index.next(0);
-        this.totals = [].fill(0, Rate.length);
-        this.currTotal = 0;
-        this.epidemicIndex = new BehaviorSubject(0);
-        this.gameHistory = [];
-
-        this.deck = this.initDeck();
     }
 
     /**
@@ -137,7 +173,15 @@ export class DeckService {
      * @param note The note to add.
      */
     public addNote(city: string, note: string) : void {
-        this.deck[city].notes.push(note);
+        if (this.gameSocket !== undefined) {
+            this.gameSocket.send(JSON.stringify({
+                type: 'add_note',
+                data: {
+                    city: city,
+                    note: note
+                }
+            }));
+        }
     }
 
     /**
@@ -146,27 +190,35 @@ export class DeckService {
      * @param index The index of the note to delete.
      */
     public deleteNote(city: string, index: number) : void {
-        this.deck[city].notes.splice(index, 1);
+        if (this.gameSocket !== undefined) {
+            this.gameSocket.send(JSON.stringify({
+                type: 'remove_note',
+                data: {
+                    city: city,
+                    index: index
+                }
+            }));
+        }
     }
 
     /**
      * Turns the game information into a string that can be saved in the back-end to save a game's progress.
      * @return string The string form of the game information.
      */
-    public toString() : string {
-        let citiesArray = [];
-        for (let city of Cities) {
-            citiesArray.push(this.deck[city].toObject());
-        }
-        let gameInfo = {
-            deck: citiesArray,
-            index: this.index.value,
-            totals: this.totals,
-            currTotal: this.currTotal,
-            epidemicIndex: this.epidemicIndex
-        };
-        return JSON.stringify(gameInfo);
-    }
+    // public toString() : string {
+    //     let citiesArray = [];
+    //     for (let city of Cities) {
+    //         citiesArray.push(this.deck[city].toObject());
+    //     }
+    //     let gameInfo = {
+    //         deck: citiesArray,
+    //         index: this.index.value,
+    //         totals: this.totals,
+    //         currTotal: this.currTotal,
+    //         epidemicIndex: this.epidemicIndex
+    //     };
+    //     return JSON.stringify(gameInfo);
+    // }
 
     /**
      * Accepts a string of information about a saved game and turns it into an actual game.
@@ -196,8 +248,8 @@ export class DeckService {
      * Gets the current epidemic round.
      * @return number The epidemic round.
      */
-    public getEpidemic() : BehaviorSubject<number> {
-        return this.epidemicIndex;
+    public getEpidemic() : Observable<number> {
+        return of(this.epidemicIndex);
     }
 
     /**
@@ -213,7 +265,7 @@ export class DeckService {
      * @return Observable<Object[]> The observable that the material tables subscribe to.
      */
     public getDeck() : Observable<Object[]> {
-        return of(Object.values(this.deck).filter((city) => typeof city === 'object' && city.hasOwnProperty('name')));
+        return of(Object.values(this.deck));
     }
 
     /**
@@ -221,8 +273,8 @@ export class DeckService {
      * @param city The name of the city to get the notes for.
      * @return string[] The array of notes.
      */
-    public getNotes(city: string) : string[] {
-        return this.deck[city].notes;
+    public getNotes(city: string) : Observable<string[]> {
+        return of(this.deck[city].notes);
     }
 
     public getGameHistory() : Observable<string[]> {

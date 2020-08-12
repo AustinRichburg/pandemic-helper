@@ -1,11 +1,10 @@
 <div class="btn-group-game-controls">
-    <button mat-raised-button class="btn-game-control" (click)="startRemoteGame()">Create Game</button>
     <button mat-raised-button class="btn-game-control" (click)="joinRemoteGame()">Join Game</button>
     <button mat-raised-button class="btn-game-control" (click)="saveGame()">Save Game</button>
     <button mat-raised-button class="btn-game-control" (click)="loadGame()">Load Game</button>
 </div>
 
-<app-infection-rate></app-infection-rate>
+<app-infection-rate [index]="epidemic_index"></app-infection-rate>
 
 <table mat-table [dataSource]="deck" matSort class="mat-elevation-z8">
     <ng-container matColumnDef="name">
@@ -15,17 +14,17 @@
 
     <ng-container matColumnDef="chance">
         <th mat-header-cell *matHeaderCellDef mat-sort-header> Chance to Draw </th>
-        <td mat-cell *matCellDef="let city"> {{ city.chance() }}% </td>
+        <td mat-cell *matCellDef="let city"> {{ city.chance }}% </td>
     </ng-container>
 
     <ng-container matColumnDef="totalOfCard">
         <th mat-header-cell *matHeaderCellDef mat-sort-header> In Deck </th>
-        <td mat-cell *matCellDef="let city"> {{ city.inDeck(city) }} </td>
+        <td mat-cell *matCellDef="let city"> {{ city.in_deck}} </td>
     </ng-container>
 
     <ng-container matColumnDef="numInPiles">
         <th mat-header-cell *matHeaderCellDef mat-sort-header> Drawn </th>
-        <td mat-cell *matCellDef="let city"> {{ city.currDrawn }} </td>
+        <td mat-cell *matCellDef="let city"> {{ city.curr_drawn }} </td>
     </ng-container>
 
     <ng-container matColumnDef="actions">
@@ -38,7 +37,7 @@
     <ng-container matColumnDef="notes">
         <th mat-header-cell *matHeaderCellDef> Notes </th>
         <td mat-cell *matCellDef="let city">
-            <button mat-button (click)="openNotes(city.name)" [ngClass]="{'highlight': city.notes.length > 0}"> ({{ city.notes.length }}) </button>
+            <button mat-button (click)="openNotes(city)" [ngClass]="{'highlight': city.notes.length > 0}"> ({{ city.notes.length }}) </button>
         </td>
     </ng-container>
 
@@ -50,4 +49,12 @@
 <button class="vanilla-button" mat-button [routerLink]="['/rules', 'vanilla']">Open Rulebook</button>
 
 <app-game-history [gameHistory]="gameHistory"></app-game-history>
+
+<div class="player-list">
+    <p>Player List</p>
+    <ul>
+        <li *ngFor="let player of playerList">{{ player }}</li>
+    </ul>
+</div>
+
 <app-snackbar></app-snackbar>

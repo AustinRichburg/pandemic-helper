@@ -11,15 +11,14 @@ import { VanillaGameRoutingModule } from './vanilla-game-routing.module';
 import { MatSortModule } from '@angular/material/sort';
 import { NotesComponent, NoteContentComponent } from '../shared/notes/notes.component';
 import { GameListComponent } from '../shared/game-list/game-list.component';
-import { CreateMultiComponent } from '../shared/create-multi/create-multi.component';
 import { JoinMultiComponent } from '../shared/join-multi/join-multi.component';
-import { VanillaCityTableRemoteComponent } from './vanilla-city-table-remote/vanilla-city-table-remote.component';
+import { VanillaGameComponent } from './vanilla-game.component';
 
 @NgModule({
     declarations: [
         VanillaCityTableComponent,
         GameOverModalComponent,
-        VanillaCityTableRemoteComponent
+        VanillaGameComponent
     ],
     imports: [
         CommonModule,
@@ -35,7 +34,6 @@ import { VanillaCityTableRemoteComponent } from './vanilla-city-table-remote/van
         NotesComponent,
         NoteContentComponent,
         GameListComponent,
-        CreateMultiComponent,
         JoinMultiComponent
     ]
 })

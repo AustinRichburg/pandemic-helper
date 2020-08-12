@@ -4,16 +4,12 @@ from channels.generic.websocket import JsonWebsocketConsumer
 from rest_framework.authtoken.models import Token
 from channels.db import database_sync_to_async
 from .models import RemoteGame
+from .classes.Game import Game
 
-def check_gm_status(self):
-    username = self.user.get_username()
-    if not username in self.player_list or not self.player_list[username]['gm_status']:
-        return False
-    return True
+class GameConsumer(JsonWebsocketConsumer):
 
-class RemoteGameConsumer(JsonWebsocketConsumer):
-
-    player_list = {}
+    playerlist: list = []
+    game: Game = Game()
 
     def connect(self):
         self.game_id = self.scope['url_route']['kwargs']['game_id']
@@ -23,11 +19,8 @@ class RemoteGameConsumer(JsonWebsocketConsumer):
             token = params.get('token', (None,))[0]
             self.scope["user"] = Token.objects.get(key=token).user
 
-        self.user = self.scope["user"]
-
-        if self.user != None:
-            isGM = len(self.player_list) == 0
-            self.player_list[self.user.get_username()] = {'gm_status': isGM}
+        if self.scope["user"] != None:
+            self.playerlist.append(self.scope["user"].get_username())
         else:
             self.close()
 
@@ -45,13 +38,19 @@ class RemoteGameConsumer(JsonWebsocketConsumer):
             }
         )
 
+        self.send_updated_deck()
+
+        print("self.playerlsit, : " + str(self.playerlist))
+
     def disconnect(self, close_code):
         msg_type = 'update_player_list'
-        if self.player_list[self.user.get_username()]['gm_status']:
-            msg_type = 'close_game'
-            RemoteGame.objects.filter(id=self.game_id).delete()
 
-        del self.player_list[self.user.get_username()]
+        self.playerlist.remove(self.scope["user"].get_username())
+
+        if len(self.playerlist) == 0:
+            msg_type = 'close_game'
+            # RemoteGame.objects.filter(id=self.game_id).delete()
+
         async_to_sync(self.channel_layer.group_send)(
             self.game_id,
             {
@@ -64,19 +63,20 @@ class RemoteGameConsumer(JsonWebsocketConsumer):
             self.game_id,
             self.channel_name
         )
-
-    # Receive message from WebSocket
+    
+     # Receive message from WebSocket
     def receive_json(self, content):
-        auth_routes = ['update_deck']
         msg_type = content.get('type')
-        data = content.get('data')
+        data = content.get('data', None)
 
-        if msg_type in auth_routes and not check_gm_status(self):
-            self.send_json({
-                'type': 'no_auth',
-                'data': 'You are not authorized to do that.'
-            })
-            return
+        is_game_over = False
+        if msg_type == 'draw':
+            self.game.draw_card(data)
+        if msg_type == 'epidemic':
+            is_game_over = self.game.epidemic()
+
+        if is_game_over:
+            msg_type = 'game_over'
 
         # Send game info to all clients
         async_to_sync(self.channel_layer.group_send)(
@@ -84,7 +84,7 @@ class RemoteGameConsumer(JsonWebsocketConsumer):
             {
                 'type': msg_type,
                 'data': data,
-                'from': self.user.get_username()
+                'from': self.scope["user"].get_username()
             }
         )
 
@@ -92,29 +92,38 @@ class RemoteGameConsumer(JsonWebsocketConsumer):
     def update_player_list(self, event):
         # Send message to WebSocket
         self.send_json({
-            'data': list(self.player_list),
+            'data': self.playerlist,
             'type': 'player_list',
         })
 
-    def update_deck(self, event):
-        self.send_json({
-            'type': 'draw',
-            'data': event.get('data'),
-            'from': event.get('from')
-        })
+    def draw(self, event):
+        self.send_updated_deck()
+
+    def epidemic(self, event):
+        self.send_updated_deck()
 
     def close_game(self, event):
         self.send_json({
             'type': 'close_game'
         })
 
+    def game_over(self, event):
+        self.send_json({
+            'type': 'game_over'
+        })
+
     def add_note(self, event):
         city = event.get('data').get('city')
         note = event.get('data').get('note')
 
+        self.game.add_note(city, note)
+
         self.send_json({
             'type': 'add_note',
-            'data': event.get('data'),
+            'data': {
+                'city': city,
+                'note': note
+            },
             'from': event.get('from')
         })
 
@@ -122,11 +131,21 @@ class RemoteGameConsumer(JsonWebsocketConsumer):
         city = event.get('data').get('city')
         index = event.get('data').get('index')
 
+        self.game.delete_note(city, index)
+
         self.send_json({
             'type': 'remove_note',
-            'data': event.get('data'),
+            'data': {
+                'city': city,
+                'index': index
+            },
             'from': event.get('from')
         })
-        
 
+    def send_updated_deck(self):
+        self.send_json({
+            'type': 'update_game',
+            'data': self.game.to_dict(),
+            'from': self.scope["user"].get_username()
+        })
         

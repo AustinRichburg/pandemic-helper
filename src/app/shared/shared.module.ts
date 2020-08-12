@@ -9,7 +9,6 @@ import { FormsModule } from '@angular/forms';
 import { NotesComponent, NoteContentComponent } from './notes/notes.component';
 import { MatDialogModule } from '@angular/material/dialog';
 import { GameListComponent } from './game-list/game-list.component';
-import { CreateMultiComponent } from './create-multi/create-multi.component';
 import { JoinMultiComponent } from './join-multi/join-multi.component';
 import { GameHistoryComponent } from './game-history/game-history.component';
 import { SnackbarComponent } from './snackbar/snackbar.component';
@@ -20,10 +19,10 @@ import { SnackbarComponent } from './snackbar/snackbar.component';
     declarations: [
         InfectionRateComponent,
         LoginComponent,
-        SignupComponent, NotesComponent,
+        SignupComponent,
+        NotesComponent,
         NoteContentComponent,
         GameListComponent,
-        CreateMultiComponent,
         JoinMultiComponent,
         GameHistoryComponent,
         SnackbarComponent

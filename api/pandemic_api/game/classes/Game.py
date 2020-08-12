@@ -1,0 +1,106 @@
+from .City import City
+
+class Game:
+    """Class to handle the game logic"""
+
+    cities = [
+    'Washington',
+    'Atlanta',
+    'New York',
+    'Jacksonville',
+    'Paris',
+    'Cairo',
+    'Tokyo'
+];
+    rate = [2, 2, 2, 3, 3, 4]
+
+    deck: dict = {}
+    totals: [int]
+    curr_total: int
+    index: int
+    epidemic_index:int
+    game_history: [str]
+
+    def __init__(self):
+        self.totals = [0]
+        self.curr_total = 0
+        self.index = 0
+        self.epidemic_index = 0
+        self.game_history = []
+        for city in self.cities:
+            self.deck[city] = City(city)
+            self.totals[self.index] += self.deck[city].get_total_in_deck()
+
+    def is_game_over(self):
+        return self.epidemic_index >= len(self.rate)
+    
+    def draw_card(self, name):
+        if not self.deck[name].draw(self.index):
+            return
+
+        self.game_history.append(name + ' was drawn.')
+
+        self.curr_total += 1
+        self.totals[self.index] -= 1
+
+        if self.totals[self.index] == 0:
+            self.index -= 1
+    
+    def epidemic(self):
+        self.epidemic_index += 1
+        self.game_history.append('Epidemic ' + str(self.epidemic_index) + ' occured.')
+
+        if self.is_game_over():
+            return True;
+
+        # In the unlikely event of a back-to-back epidemic, don't do anything
+        if self.curr_total == 0:
+            return False
+
+        # Increment index
+        self.index += 1
+
+        # Add the total of cards drawn this round to the totals array
+        self.totals.append(self.curr_total)
+        self.curr_total = 0
+
+        # Add the number of cities drawn this round to the past drawn array
+        for city in self.deck:
+            self.deck[city].handle_epidemic()
+
+    def add_note(self, city, note: str):
+        self.deck[city].notes.append(note)
+
+    def delete_note(self, city, i):
+        del self.deck[city].notes[i]
+
+    def get_last_total(self):
+        return self.totals[self.index]
+
+    def get_epidemic_index(self):
+        return self.epidemic_index
+
+    def get_index(self):
+        return self.index
+    
+    def get_deck(self):
+        return self.deck
+
+    def get_notes(self, city):
+        return self.deck[city].notes
+    
+    def get_game_history(self):
+        return self.game_history
+
+    def to_dict(self):
+        jsonDeck = {}
+        for city in self.deck:
+            cityDict = self.deck[city].to_dict()
+            cityDict['chance'] = self.deck[city].chance(self.index, self.totals[self.index])
+            cityDict['in_deck'] = self.deck[city].in_deck(self.index)
+            jsonDeck[city] = cityDict
+        return {
+            'deck': jsonDeck,
+            'epidemic_index': self.epidemic_index,
+            'game_history': self.game_history
+        }

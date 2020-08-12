@@ -3,7 +3,6 @@ import { BehaviorSubject, Observable } from 'rxjs';
 import { User } from './models/user';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { DeckService } from './deck.service';
 
 @Injectable({
     providedIn: 'root'
@@ -16,8 +15,11 @@ export class AuthService {
     /* Source of truth for whether user is signed in */
     private signedIn: BehaviorSubject<boolean>;
 
-    constructor(private http: HttpClient, private router: Router, private deck: DeckService) {
-        this.signedIn = new BehaviorSubject(typeof localStorage.getItem("user") === 'string');
+    constructor(
+        private http: HttpClient,
+        private router: Router
+        ) {
+            this.signedIn = new BehaviorSubject(typeof localStorage.getItem("user") === 'string');
     }
 
     /**
@@ -167,6 +169,10 @@ export class AuthService {
         if (!this.signedIn.getValue()) {
             throw new UnauthorizedError('');
         }
+    }
+
+    public getGameId() : Observable<Object> {
+        return this.http.post(this.apiUrl + 'game/remote/', {});
     }
 
 }

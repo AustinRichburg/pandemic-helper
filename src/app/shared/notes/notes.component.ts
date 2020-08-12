@@ -1,10 +1,11 @@
 import { Component, OnInit, Inject } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { DeckService } from 'src/app/deck.service';
+import { Observable } from 'rxjs';
 
 export interface DialogData {
     name: string,
-    notes: string[],
+    notes: Observable<string[]>,
     deckService: DeckService
 }
 
@@ -16,10 +17,15 @@ export interface DialogData {
 export class NotesComponent implements OnInit {
 
     deck: any;
+    notes: string[]
 
     constructor(public dialogRef: MatDialogRef<NotesComponent>,
         @Inject(MAT_DIALOG_DATA) public data: DialogData,
         public dialog: MatDialog) {
+            console.log(data.notes)
+            data.notes.subscribe(
+                notes => {this.notes = notes; console.log('notes updated')}
+            );
             this.deck = data.deckService;
     }
 

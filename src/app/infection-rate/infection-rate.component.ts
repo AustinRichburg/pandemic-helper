@@ -1,6 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Input } from '@angular/core';
 import { Rate } from '../constants';
-import { DeckService } from '../deck.service';
 
 /**
  * Component that simply displays the number of cards to draw based on the current epidemic index.
@@ -15,15 +14,12 @@ export class InfectionRateComponent implements OnInit {
     /* Array of number of cards to draw */
     rates: number[];
 
-    epidemic: number;
+    @Input() index: number;
 
-    constructor(private deck: DeckService) { }
+    constructor() { }
 
     ngOnInit() {
         this.rates = Rate;
-        this.deck.getEpidemic().subscribe(
-            index => this.epidemic = index
-        );
     }
 
 }
