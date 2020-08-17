@@ -37,10 +37,10 @@ class City:
         self.totals.append(self.curr_drawn)
         self.curr_drawn = 0
 
-    # def setLoadedValues(self, city):
-    #     self.totals = city.totals
-    #     self.curr_drawn = city.currDrawn
-    #     self.notes = city.notes
+    def set_loaded_values(self, city):
+        self.totals = city['totals']
+        self.curr_drawn = city['curr_drawn']
+        self.notes = city['notes']
 
     def to_dict(self):
         return {

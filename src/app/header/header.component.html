@@ -1,26 +1,29 @@
 <div class="header">
     <span class="header-title" routerLink="/">Pandemic Helper</span>
-    <div class="header-link" routerLink="/vanilla">
-        <p>Vanilla</p>
-    </div>
-    <div class="header-link dropdown" routerLink="/legacy">
-        <p>Legacy</p>
-        <span id="dropdown-content" class="dropdown-content">
-            <div class="dropdown-link" routerLink="/legacy/season-one" (click)="$event.stopPropagation()"><p>Season 1</p></div>
-            <div class="dropdown-link" routerLink="/legacy/season-two" (click)="$event.stopPropagation()"><p>Season 2</p></div>
+    <i class="menu-toggle" (click)="toggleMenu()"><div></div><div></div><div></div></i>
+    <div class="header-content">
+        <div class="header-link" routerLink="/vanilla">
+            <p>Vanilla</p>
+        </div>
+        <div class="header-link dropdown" routerLink="/legacy">
+            <p>Legacy</p>
+            <span id="dropdown-content" class="dropdown-content">
+                <div class="dropdown-link" routerLink="/legacy/season-one" (click)="$event.stopPropagation()"><p>Season 1</p></div>
+                <div class="dropdown-link" routerLink="/legacy/season-two" (click)="$event.stopPropagation()"><p>Season 2</p></div>
+            </span>
+        </div>
+        <span *ngIf="!signedIn" class="align-right">
+            <div class="header-link" routerLink="/signup">
+                <p>Sign Up</p>
+            </div>
+            <div class="header-link" routerLink="/login">
+                <p>Log In</p>
+            </div>
+        </span>
+        <span *ngIf="signedIn" class="align-right">
+            <div class="header-link" (click)="logout()">
+                <p>Logout</p>
+            </div>
         </span>
     </div>
-    <span *ngIf="!signedIn" class="align-right">
-        <div class="header-link" routerLink="/signup">
-            <p>Sign Up</p>
-        </div>
-        <div class="header-link" routerLink="/login">
-            <p>Log In</p>
-        </div>
-    </span>
-    <span *ngIf="signedIn" class="align-right">
-        <div class="header-link" (click)="logout()">
-            <p>Logout</p>
-        </div>
-    </span>
 </div>

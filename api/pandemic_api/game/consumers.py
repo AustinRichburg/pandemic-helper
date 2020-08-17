@@ -1,9 +1,9 @@
-import urllib.parse
+import urllib.parse, json
 from asgiref.sync import async_to_sync
 from channels.generic.websocket import JsonWebsocketConsumer
 from rest_framework.authtoken.models import Token
 from channels.db import database_sync_to_async
-from .models import RemoteGame
+from .models import RemoteGame, Game as SaveGame
 from .classes.Game import Game
 
 class GameConsumer(JsonWebsocketConsumer):
@@ -74,6 +74,21 @@ class GameConsumer(JsonWebsocketConsumer):
             self.game.draw_card(data)
         if msg_type == 'epidemic':
             is_game_over = self.game.epidemic()
+        if msg_type == 'save':
+            game_dict = self.game.save_game_dict()
+            game = SaveGame(id=self.game_id, name='default', deck=game_dict, game_master=self.scope["user"].get_username())
+            game.save()
+            self.send_json({
+                'type': 'save',
+                'data': True
+            })
+            return
+        if msg_type == 'load':
+            game = list(SaveGame.objects.filter(id=data).values())
+            game_deck = game[0]['deck']
+            json_game_deck = game_deck.replace("'", "\"")
+            self.game.load_game(json.loads(json_game_deck))
+            msg_type = 'draw'
 
         if is_game_over:
             msg_type = 'game_over'
@@ -148,4 +163,3 @@ class GameConsumer(JsonWebsocketConsumer):
             'data': self.game.to_dict(),
             'from': self.scope["user"].get_username()
         })
-        

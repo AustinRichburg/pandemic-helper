@@ -104,3 +104,22 @@ class Game:
             'epidemic_index': self.epidemic_index,
             'game_history': self.game_history
         }
+
+    def save_game_dict(self):
+        return {
+            **self.to_dict(),
+            'totals': self.totals,
+            'curr_total': self.curr_total,
+            'index': self.index
+        }
+
+    
+    def load_game(self, game):
+        for city in game['deck']:
+            self.deck[city].set_loaded_values(game['deck'][city])
+
+        self.epidemic_index = game['epidemic_index']
+        self.game_history = game['game_history']
+        self.totals = game['totals']
+        self.curr_total = game['curr_total']
+        self.index = game['index']

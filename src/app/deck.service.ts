@@ -96,6 +96,9 @@ export class DeckService {
                     break;
                 case 'close_game':
                     this.gameSocket.close();
+                case 'save':
+                    console.log('Save ' + data.data ? 'successful.' : 'failed.');
+                    break;
                 default:
                     console.error('Command not recognized.');
                     break;
@@ -202,38 +205,28 @@ export class DeckService {
     }
 
     /**
-     * Turns the game information into a string that can be saved in the back-end to save a game's progress.
-     * @return string The string form of the game information.
-     */
-    // public toString() : string {
-    //     let citiesArray = [];
-    //     for (let city of Cities) {
-    //         citiesArray.push(this.deck[city].toObject());
-    //     }
-    //     let gameInfo = {
-    //         deck: citiesArray,
-    //         index: this.index.value,
-    //         totals: this.totals,
-    //         currTotal: this.currTotal,
-    //         epidemicIndex: this.epidemicIndex
-    //     };
-    //     return JSON.stringify(gameInfo);
-    // }
-
-    /**
      * Accepts a string of information about a saved game and turns it into an actual game.
      * @param deck The string information about a deck.
      */
-    public loadNewDeck(deck: string) : boolean {
-        let loaded = JSON.parse(deck);
-        for (let city of loaded.deck) {
-            this.deck[city.name].setLoadedValues(city);
+    // public loadNewDeck(deck: string) : boolean {
+    //     let loaded = JSON.parse(deck);
+    //     for (let city of loaded.deck) {
+    //         this.deck[city.name].setLoadedValues(city);
+    //     }
+    //     this.index.next(loaded.index);
+    //     this.totals = loaded.totals;
+    //     this.currTotal - loaded.currTotal;
+    //     this.epidemicIndex = loaded.epidemicIndex;
+    //     return true;
+    // }
+
+    public loadGame(id: string) : void {
+        if (this.gameSocket !== undefined) {
+            this.gameSocket.send(JSON.stringify({
+                type: 'load',
+                data: id
+            }));
         }
-        this.index.next(loaded.index);
-        this.totals = loaded.totals;
-        this.currTotal - loaded.currTotal;
-        this.epidemicIndex = loaded.epidemicIndex;
-        return true;
     }
 
     /**
@@ -279,6 +272,14 @@ export class DeckService {
 
     public getGameHistory() : Observable<string[]> {
         return of(this.gameHistory);
+    }
+
+    public saveGame() : void {
+        if (this.gameSocket !== undefined) {
+            this.gameSocket.send(JSON.stringify({
+                type: 'save'
+            }));
+        }
     }
     
 }

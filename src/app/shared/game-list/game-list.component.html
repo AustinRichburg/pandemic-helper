@@ -2,7 +2,7 @@
     <span [ngSwitch]="gameList.length > 0">
         <div *ngSwitchCase="true">
             <p>Select a game from the list:</p>
-            <div class="game" *ngFor="let game of gameList" (click)="loadGame(game.deck)">{{ game.name }} - {{ format(game.date_created) }}</div>
+            <div class="game" *ngFor="let game of gameList" (click)="loadGame(game.id)">{{ game.name }} - {{ format(game.date_created) }}</div>
         </div>
         <div *ngSwitchDefault>
             <p>No games found.</p>

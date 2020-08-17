@@ -1,12 +1,14 @@
-<div>
-    <p>Join a remote game</p>
+<h4 mat-dialog-title>Join a remote game</h4>
+<mat-dialog-content>
     <div class="multi-form">
         <div class="form-section">
             <label for="">Enter Game ID: </label>
             <input type="text" [(ngModel)]="gameId">
         </div>
-        <button mat-button (click)="joinRemoteGame()">Join</button>
-        <button mat-button (click)="dialogRef.close()">Cancel</button>
     </div>
     <div *ngIf="error" class="error-message">{{ error }}</div>
-</div>
+</mat-dialog-content>
+<mat-dialog-actions class="footer-btn-group" align="end">
+    <button mat-button mat-dialog-close>Cancel</button>
+    <button mat-button (click)="joinRemoteGame()" cdkFocusInitial>Join</button>
+</mat-dialog-actions>

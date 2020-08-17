@@ -61,7 +61,7 @@ class RemoteGameView(APIView):
         while RemoteGame.objects.filter(id=id).values():
             id = self.create_game_id(self.ID_LENGTH)
 
-        game = RemoteGame(id=id, name='default for now', game_master=request.user.get_username())
+        game = RemoteGame(id=id)
         game.save()
         return Response({'data': 'created game', 'id': id})
         

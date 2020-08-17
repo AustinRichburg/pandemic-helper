@@ -12,8 +12,6 @@ class Game(models.Model):
 
 class RemoteGame(models.Model):
     id = models.CharField(max_length=6, primary_key=True, unique=True)
-    name = models.CharField(max_length=16)
-    game_master = models.CharField(max_length=100)
     date_created = models.DateTimeField(auto_now_add=True)
 
     class Meta:

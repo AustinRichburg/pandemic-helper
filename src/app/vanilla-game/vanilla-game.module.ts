@@ -13,12 +13,14 @@ import { NotesComponent, NoteContentComponent } from '../shared/notes/notes.comp
 import { GameListComponent } from '../shared/game-list/game-list.component';
 import { JoinMultiComponent } from '../shared/join-multi/join-multi.component';
 import { VanillaGameComponent } from './vanilla-game.component';
+import { LogisticsBtnGroupComponent } from './logistics-btn-group/logistics-btn-group.component';
 
 @NgModule({
     declarations: [
         VanillaCityTableComponent,
         GameOverModalComponent,
-        VanillaGameComponent
+        VanillaGameComponent,
+        LogisticsBtnGroupComponent
     ],
     imports: [
         CommonModule,

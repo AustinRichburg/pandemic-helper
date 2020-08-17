@@ -14,6 +14,6 @@ An interface to help you get through a game of pandemic by keeping track of the 
 - - -
 
 TODO:
-1. Finish feature allowing remote, multi-user games
-2. Create undo feature for the deck
+1. Create undo feature for the deck
+2. Add more support for mobile
 

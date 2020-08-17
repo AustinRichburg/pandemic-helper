@@ -1,4 +1,5 @@
 <div class="vanilla-content">
-    <p>Game ID: {{ gameId }}</p>
+    <p class="game-id">Game ID: <span class="id">{{ gameId }}</span></p>
+    <app-logistics-btn-group [dialog]="dialog"></app-logistics-btn-group>
     <app-vanilla-city-table></app-vanilla-city-table>
 </div>

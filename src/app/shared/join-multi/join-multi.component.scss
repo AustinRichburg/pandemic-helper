@@ -1,0 +1,13 @@
+@import '~src/sass/mixins';
+
+.mat-button {
+    width: 50%;
+
+    @include sm {
+        width: auto;
+    }
+
+    &.mat-button-base + &.mat-button-base {
+        margin-left: 0;
+    }
+}
