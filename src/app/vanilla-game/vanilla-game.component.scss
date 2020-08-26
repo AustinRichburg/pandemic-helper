@@ -1,8 +1,77 @@
+.game-name {
+    display: flex;
+    font-size: 20px;
+    justify-content: center;
+    margin: 25px auto 10px auto;
+    width: 50%;
+
+    input[type='text'] {
+        border: none;
+        color: #f6c90e;
+        cursor: pointer;
+        font-size: inherit;
+        height: auto;
+        padding-left: 15px;
+        transition: none;
+        width: auto;
+
+        &:hover {
+            color:#eee;
+        }
+
+        &:focus {
+            border-bottom: none;
+            cursor: text;
+            padding: 0 0 0 10px;
+        }
+    }
+}
+
 .game-id {
     text-align: center;
 
     .id {
         font-family: 'Roboto Mono', sans-serif;
         letter-spacing: 2px;
+    }
+}
+
+.player-list {
+    display: inline-block;
+    position: absolute;
+
+    ul {
+        list-style: none;
+        padding-left: 0;
+    }
+
+    li {
+        margin: 8px 15px;
+        padding-left: 20px;
+        position: relative;
+
+        &::before {
+            background-image: url('/assets/needle.png');
+            background-position: center;
+            background-size: cover;
+            content: '';
+            height: 28px;
+            left: 0;
+            position: absolute;
+            transform: translate(-50%);
+            width: 30px;
+        }
+
+        &.game-master::before {
+            background-image: url('/assets/crown.png');
+            content: '';
+            height: 20px;
+        }
+    }
+
+    img {
+        height: 20px;
+        margin-left: 8px;
+        width: 30px;
     }
 }

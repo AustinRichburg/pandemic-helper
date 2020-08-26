@@ -14,6 +14,7 @@ import { GameListComponent } from '../shared/game-list/game-list.component';
 import { JoinMultiComponent } from '../shared/join-multi/join-multi.component';
 import { VanillaGameComponent } from './vanilla-game.component';
 import { LogisticsBtnGroupComponent } from './logistics-btn-group/logistics-btn-group.component';
+import { FormsModule } from '@angular/forms';
 
 @NgModule({
     declarations: [
@@ -29,7 +30,8 @@ import { LogisticsBtnGroupComponent } from './logistics-btn-group/logistics-btn-
         MatTableModule,
         MatDialogModule,
         MatButtonModule,
-        MatSortModule
+        MatSortModule,
+        FormsModule
     ],
     entryComponents: [
         GameOverModalComponent,

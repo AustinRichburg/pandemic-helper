@@ -4,14 +4,14 @@ class Game:
     """Class to handle the game logic"""
 
     cities = [
-    'Washington',
-    'Atlanta',
-    'New York',
-    'Jacksonville',
-    'Paris',
-    'Cairo',
-    'Tokyo'
-];
+        'Washington',
+        'Atlanta',
+        'New York',
+        'Jacksonville',
+        'Paris',
+        'Cairo',
+        'Tokyo'
+    ];
     rate = [2, 2, 2, 3, 3, 4]
 
     deck: dict = {}
@@ -22,6 +22,7 @@ class Game:
     game_history: [str]
 
     def __init__(self):
+        self.deck = {}
         self.totals = [0]
         self.curr_total = 0
         self.index = 0
@@ -35,8 +36,12 @@ class Game:
         return self.epidemic_index >= len(self.rate)
     
     def draw_card(self, name):
+        """
+        Logic for the card that was drawn. Increments current totals and decrements previous totals.
+        """
+
         if not self.deck[name].draw(self.index):
-            return
+            return False
 
         self.game_history.append(name + ' was drawn.')
 
@@ -45,8 +50,16 @@ class Game:
 
         if self.totals[self.index] == 0:
             self.index -= 1
+        
+        return True
     
     def epidemic(self):
+        """
+        Handles the deck in the event of an epidemic. It increases the deck indexes and updates the totals,
+        past and present. It is possible for two epidemics to get drawn back-to-back, so there is logic to handle
+        that as well.
+        """
+
         self.epidemic_index += 1
         self.game_history.append('Epidemic ' + str(self.epidemic_index) + ' occured.')
 

@@ -1,11 +1,16 @@
 import { Component, OnInit, Input } from '@angular/core';
-import { AuthService } from 'src/app/auth.service';
 import { Router } from '@angular/router';
-import { WebsocketConfigService } from 'src/app/websocketConfig.service';
+
 import { MatDialogConfig, MatDialog } from '@angular/material/dialog';
-import { JoinMultiComponent } from 'src/app/shared/join-multi/join-multi.component';
+import { MatSnackBar } from '@angular/material/snack-bar';
+
+import { AuthService } from 'src/app/auth.service';
 import { DeckService } from 'src/app/deck.service';
+import { WebsocketConfigService } from 'src/app/websocketConfig.service';
+
+import { JoinMultiComponent } from 'src/app/shared/join-multi/join-multi.component';
 import { GameListComponent } from 'src/app/shared/game-list/game-list.component';
+import { GameOverModalComponent } from '../game-over-modal/game-over-modal.component';
 
 @Component({
     selector: 'app-logistics-btn-group',
@@ -15,12 +20,14 @@ import { GameListComponent } from 'src/app/shared/game-list/game-list.component'
 export class LogisticsBtnGroupComponent implements OnInit {
 
     @Input() dialog: MatDialog;
+    @Input() isJoinedGame: boolean;
 
     constructor(
         private auth: AuthService,
         private deck: DeckService,
         private router: Router,
-        private wsConfig: WebsocketConfigService) { }
+        private wsConfig: WebsocketConfigService,
+        private snackbar: MatSnackBar) { }
 
     ngOnInit(): void { }
 
@@ -32,12 +39,11 @@ export class LogisticsBtnGroupComponent implements OnInit {
             return;
         }
 
-        const success = (res: any) => {
-            if (res) {
-                this.router.navigate(['/vanilla/' + res.id]);
-                this.wsConfig.setGameId(res.id);
-            } else {
-                // logic to handle error joining game
+        const success = (id: string) => {
+            if (id) {
+                this.router.navigate(['/vanilla/' + id]);
+                this.wsConfig.setGameId(id);
+                this.snackbar.open('Joined game.');
             }
         };
 
@@ -46,6 +52,11 @@ export class LogisticsBtnGroupComponent implements OnInit {
         joinMultiRef.afterClosed().subscribe(
             result => success(result)
         );
+    }
+
+    leaveRemoteGame() {
+        this.wsConfig.leaveGame();
+        this.snackbar.open('Left game.');
     }
 
     saveGame() {
@@ -57,6 +68,7 @@ export class LogisticsBtnGroupComponent implements OnInit {
         }
 
         this.deck.saveGame();
+        this.snackbar.open('Saved game.');
     }
 
     loadGame() {
@@ -72,7 +84,14 @@ export class LogisticsBtnGroupComponent implements OnInit {
             gameList = res['data'];
             let config = new MatDialogConfig();
             config.data = gameList;
-            this.dialog.open(GameListComponent, config);
+            let dialogRef = this.dialog.open(GameListComponent, config);
+            dialogRef.afterClosed().subscribe(
+                res => {
+                    if (res) {
+                        this.snackbar.open('Game loaded.');
+                    }
+                }
+            );
         }
 
         this.auth.getGameList().subscribe(
@@ -80,16 +99,18 @@ export class LogisticsBtnGroupComponent implements OnInit {
         );
     }
 
-    //TODO: move this to auth service
-    // Logic to create unique game ID to identify saved games
-    private dec2hex (dec: any) {
-        return ('0' + dec.toString(16)).substr(-2)
-    }
+    newGame() : void {
+        let config = new MatDialogConfig();
+        let dialogRef = this.dialog.open(GameOverModalComponent, config);
+        dialogRef.afterClosed().subscribe(
+            res => {
+                if (res) {
+                    this.deck.newGame();
+                    this.snackbar.open('New game started.');
+                }
+            }
+        );
 
-    private generateId (len: number) : string {
-        var arr = new Uint8Array((len || 40) / 2)
-        window.crypto.getRandomValues(arr)
-        return Array.from(arr, this.dec2hex).join('')
     }
 
 }

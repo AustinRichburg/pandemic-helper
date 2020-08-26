@@ -1,6 +1,7 @@
 import { Component, OnInit, Inject } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog';
 import { DeckService } from 'src/app/deck.service';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
     selector: 'app-game-list',
@@ -29,13 +30,8 @@ export class GameListComponent implements OnInit {
     ngOnInit() { }
 
     loadGame(id: string) : void {
-        // let success = this.deck.loadNewDeck(deck);
-        // if (success) {
-        //     this.dialogRef.close();
-        // } else {
-        //     // display error
-        // }
         this.deck.loadGame(id);
+        this.dialogRef.close(true);
     }
 
     format(date: string) : string {

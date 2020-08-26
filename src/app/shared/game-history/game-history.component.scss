@@ -1,5 +1,6 @@
 .game-history-content {
-    margin: 10px 0 80px 10px;
+    display: inline-block;
+    margin: 10px 30px 80px 10px;
     overflow: hidden;
     width: 350px;
 
@@ -26,6 +27,8 @@
     }
 
     .overflow-container {
+        display: flex;
+        flex-direction: column-reverse;
         overflow-y: scroll;
         max-height: 500px;
         transition: max-height 0.6s;

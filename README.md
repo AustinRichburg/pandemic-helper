@@ -16,4 +16,7 @@ An interface to help you get through a game of pandemic by keeping track of the 
 TODO:
 1. Create undo feature for the deck
 2. Add more support for mobile
+3. Player statistics? (ie. games played)
+4. Streamline websocket messages
+5. Autosave
 

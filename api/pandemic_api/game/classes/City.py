@@ -20,7 +20,10 @@ class City:
         return self.number_in_deck
 
     def chance(self, i, last_total):
-        return round((self.totals[i] / last_total) * 100, 2)
+        try:
+            return round((self.totals[i] / last_total) * 100, 2)
+        except ZeroDivisionError as e:
+            return 0
 
     def in_deck(self, i):
         return self.totals[i]

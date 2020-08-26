@@ -1,10 +1,9 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, Input } from '@angular/core';
 import { DeckService } from '../../deck.service';
 import { GameOverModalComponent } from '../game-over-modal/game-over-modal.component';
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatSort } from '@angular/material/sort';
-import { Title } from '@angular/platform-browser';
 
 import { NotesComponent } from 'src/app/shared/notes/notes.component';
 
@@ -24,7 +23,7 @@ export class VanillaCityTableComponent implements OnInit {
     
     gameHistory: string[];
     epidemic_index: number;
-    playerList: string[];
+    
 
     constructor(private deckService: DeckService,
                 public dialog: MatDialog) {}
@@ -54,9 +53,6 @@ export class VanillaCityTableComponent implements OnInit {
                                 this.dialog.open(GameOverModalComponent, config);
                             }
                         }
-                    );
-                    this.deckService.getPlayers().subscribe(
-                        playerList => this.playerList = playerList
                     );
                 }
             }  

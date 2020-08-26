@@ -1,10 +1,13 @@
 import { Injectable } from '@angular/core';
 import { of, Observable, BehaviorSubject } from 'rxjs';
+
 import { WebsocketConfigService } from './websocketConfig.service';
+import { Game } from './models/game';
 
 /**
- * This is the service that handles all aspects regarding the status of the game and deck. This is the single
- * source of truth in regards to the deck and all indexes.
+ * This is the service that handles all aspects regarding the status of the game and deck on the client side. The game
+ * logic is on the server, so this service is mainly used to handle the two way communication with client and server
+ * via websockets.
  */
 
 @Injectable({
@@ -12,52 +15,50 @@ import { WebsocketConfigService } from './websocketConfig.service';
 })
 export class DeckService {
 
-    /* The deck that contains each city of the game as a City object. */
-    protected deck: Object;
-
-    /* The total amount of cards that were drawn during each past epidemic round. */
-    protected totals: number[];
-
-    /* The amount of cards drawn during the current epidemic round. */
-    protected currTotal: number;
-
-    /** The index used for the totals array, and subscribed to by all cities so that it can be used for their
-    *   individual totals. */
-    protected index: BehaviorSubject<number>;
-
-    /* The current epidemic round. */
-    protected epidemicIndex: number;
-
-    protected gameHistory: string[];
-
-    private isWebsocketOpen: BehaviorSubject<boolean> = new BehaviorSubject(false);
-
+    /* Websocket used to talk to the server. */
     private gameSocket: WebSocket;
 
-    private playerList: string[];
-
+    /* Boolean used as a signal to indicate to subscribers that a change to the game has occurred. */
     private gameChange: BehaviorSubject<boolean> = new BehaviorSubject(false);
 
+    /* The deck that contains each city of the game as a City object. */
+    private deck: Object;
+
+    /* The current epidemic round. */
+    private epidemicIndex: number;
+
+    /* Array of all events in the game. */
+    private gameHistory: string[];
+
+    /* Array of all other players connected to the same websocket group. */
+    private playerList: Object;
+
+    /* Boolean used as an indicator to subscribers that the game is over. */
     private isGameOver: boolean = false;
 
-    private gameId: string;
+    private gameName: string = '';
 
+    /**
+     * On creating the service, subscribe to the game ID. Once we have a game ID, create a new websocket using that ID.
+     * @param wsConfig Websocket config service that holds the game ID.
+     */
     constructor(private wsConfig: WebsocketConfigService) {
         wsConfig.getGameId().subscribe(
             gameId => {
                 if (!gameId) return;
-                if (this.gameSocket) this.gameSocket.close();
                 this.connectToSocket(gameId);
             }
         );
     }
 
+    /**
+     * Logic to connect to a websocket if the user is signed in.
+     * @param gameId The game ID used to create a unique Django Channels group (in other words, a new game)
+     */
     private connectToSocket(gameId: string) : void {
         const token = JSON.parse(localStorage.getItem('user')).token || null;
 
         if (!token) return;
-
-        this.gameId = gameId;
 
         // Create the new websocket.
         this.gameSocket = new WebSocket(
@@ -67,11 +68,10 @@ export class DeckService {
             + gameId + '?token=' + token
         );
 
-        this.playerList = [];
-
         // Executes when the socket has successfully opened.
         this.gameSocket.onopen = (e) => {
-            this.isWebsocketOpen.next(true);
+            this.playerList = [];
+            this.gameName = '';
         };
 
         // Executes when the socket sends data back.
@@ -79,11 +79,19 @@ export class DeckService {
             const data = JSON.parse(e.data);
             console.log(data);
             switch (data.type) {
-                case 'player_list':
-                    this.updatePlayers(data.data);
-                    break;
                 case 'update_game':
                     this.updateGame(data.data);
+                    break;
+                case 'draw':
+                    break;
+                case 'epidemic':
+                    break;
+                case 'player_list':
+                    this.updatePlayerlist(data.data)
+                    break;
+                case 'game_setup':
+                    this.updateGame(data.deck);
+                    this.gameName = data.name;
                     break;
                 case 'add_note':
                     this.deck[data.data.city].notes.push(data.data.note);
@@ -96,8 +104,19 @@ export class DeckService {
                     break;
                 case 'close_game':
                     this.gameSocket.close();
+                    break;
                 case 'save':
                     console.log('Save ' + data.data ? 'successful.' : 'failed.');
+                    break;
+                case 'load':
+                    break;
+                case 'new_game':
+                    break;
+                case 'name':
+                    this.gameName = data.data;
+                    break;
+                case 'unauthorized':
+                    console.log(data.type);
                     break;
                 default:
                     console.error('Command not recognized.');
@@ -109,43 +128,29 @@ export class DeckService {
 
         // Executes when the socket has successfully closed.
         this.gameSocket.onclose = (e) => {
-            this.isWebsocketOpen.next(false);
             this.gameSocket = null;
         };
     }
 
-    public isGameChange() : BehaviorSubject<boolean> {
-        return this.gameChange;
-    }
-
-    public getGameOver() : Observable<boolean> {
-        return of(this.isGameOver);
-    }
-
-    private updateGame(game) {
+    /**
+     * Updates the game with any new values that have occurred.
+     * @param game Updated game values.
+     */
+    private updateGame(game: Game) {
         this.deck = game.deck;
         this.epidemicIndex = game.epidemic_index;
         this.gameHistory = game.game_history;
     }
 
+    /**
+     * Close the websocket.
+     */
     public leaveRemoteGame() : void {
         this.gameSocket.close();
     }
 
-    public getIsWebsocketOpen() : BehaviorSubject<boolean> {
-        return this.isWebsocketOpen;
-    }
-
-    public getPlayers() : Observable<string[]> {
-        return of(this.playerList);
-    }
-
-    public updatePlayers(list: string[]) {
-        this.playerList = list;
-    }
-
     /**
-     * Logic for the card that was drawn. Increments current totals and decrements previous totals.
+     * Simulates drawing a card.
      * @param name The name of the city that was drawn.
      */
     public drawCard(name: string) : void {
@@ -158,9 +163,7 @@ export class DeckService {
     }
 
     /**
-     * Handles the deck in the event of an epidemic. It increases the deck indexes and updates the totals,
-     * past and present. It is possible for two epidemics to get drawn back-to-back, so there is logic to handle
-     * that as well.
+     * Handles the deck in the event of an epidemic.
      */
     public epidemic() : void {
         if (this.gameSocket !== undefined) {
@@ -205,21 +208,9 @@ export class DeckService {
     }
 
     /**
-     * Accepts a string of information about a saved game and turns it into an actual game.
-     * @param deck The string information about a deck.
+     * Tell the group websocket to load an existing game.
+     * @param id ID of the game to load.
      */
-    // public loadNewDeck(deck: string) : boolean {
-    //     let loaded = JSON.parse(deck);
-    //     for (let city of loaded.deck) {
-    //         this.deck[city.name].setLoadedValues(city);
-    //     }
-    //     this.index.next(loaded.index);
-    //     this.totals = loaded.totals;
-    //     this.currTotal - loaded.currTotal;
-    //     this.epidemicIndex = loaded.epidemicIndex;
-    //     return true;
-    // }
-
     public loadGame(id: string) : void {
         if (this.gameSocket !== undefined) {
             this.gameSocket.send(JSON.stringify({
@@ -230,32 +221,48 @@ export class DeckService {
     }
 
     /**
-     * Gets the total of cards drawn from the last epidemic round.
-     * @return number The number of cards drawn in the last epidemic round.
+     * Tell the game websocket to save the current game.
      */
-    public getLastTotal() : number {
-        return this.totals[this.index.value];
+    public saveGame() : void {
+        if (this.gameSocket !== undefined) {
+            this.gameSocket.send(JSON.stringify({
+                type: 'save',
+                name: this.gameName
+            }));
+        }
     }
+
+    public newGame() : void {
+        if (this.gameSocket !== undefined) {
+            this.gameSocket.send(JSON.stringify({
+                type: 'new_game'
+            }));
+        }
+    }
+
+    private updatePlayerlist(list: Object) : void {
+        const prevLength = Object.keys(this.playerList).length;
+        const newLength = Object.keys(list).length;
+        if (prevLength > newLength) {
+            
+        } else if (prevLength < newLength) {
+            
+        }
+
+        this.playerList = list;
+    }
+
+    /* =========================== Getter / Observable Functions =========================== */
 
     /**
      * Gets the current epidemic round.
-     * @return number The epidemic round.
      */
     public getEpidemic() : Observable<number> {
         return of(this.epidemicIndex);
     }
 
     /**
-     * Gets the index for the totals array for each city.
-     * @return BehaviorSubject<number> The Behavior Subject that the cities subscribe to.
-     */
-    public getIndex() : BehaviorSubject<number> {
-        return this.index;
-    }
-
-    /**
      * Gets the deck as an observable so the client tables can be updated as changes occur.
-     * @return Observable<Object[]> The observable that the material tables subscribe to.
      */
     public getDeck() : Observable<Object[]> {
         return of(Object.values(this.deck));
@@ -264,22 +271,50 @@ export class DeckService {
     /**
      * Gets the user created notes for a given city.
      * @param city The name of the city to get the notes for.
-     * @return string[] The array of notes.
      */
     public getNotes(city: string) : Observable<string[]> {
         return of(this.deck[city].notes);
     }
 
+    /**
+     * Function used to subscribe to a boolean indicating if the game status has changed.
+     */
+    public isGameChange() : BehaviorSubject<boolean> {
+        return this.gameChange;
+    }
+
+    /**
+     * Function used to observe if a game has ended.
+     */
+    public getGameOver() : Observable<boolean> {
+        return of(this.isGameOver);
+    }
+
+    /**
+     * Function to subscribe to the game history.
+     */
     public getGameHistory() : Observable<string[]> {
         return of(this.gameHistory);
     }
 
-    public saveGame() : void {
-        if (this.gameSocket !== undefined) {
-            this.gameSocket.send(JSON.stringify({
-                type: 'save'
-            }));
-        }
+    /**
+     * Function to subscribe to the player list of the current connected game.
+     */
+    public getPlayers() : Observable<Object> {
+        return of(this.playerList);
+    }
+
+    public getGameName() : Observable<string> {
+        return of(this.gameName);
+    }
+
+    public setGameName(newName: string) : void {
+        if (newName === this.gameName) return;
+        this.gameName = newName;
+        this.gameSocket.send(JSON.stringify({
+            type: 'name',
+            data: this.gameName
+        }));
     }
     
 }

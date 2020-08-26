@@ -29,10 +29,6 @@ export class AuthService {
         return this.signedIn;
     }
 
-    public isSignedIn() : boolean {
-        return this.signedIn.value;
-    }
-
     /**
      * Checks the credentials given against the back-end. Performs 
      * @param user The credentials of the user to login
@@ -100,20 +96,6 @@ export class AuthService {
     }
 
     /**
-     * Begins a remote game that other users can join.
-     * @param name Name of the remote game.
-     */
-    public startRemoteGame(name: string) : Observable<Object> {
-        // This is a feature that requires an account.
-        if (!this.signedIn.getValue()) {
-            this.router.navigate(['/login'], {state: {message: 'You need to be logged in to do that.'}});
-            return;
-        }
-
-        return this.http.post(this.apiUrl + 'game/remote/', {name: name});
-    }
-
-    /**
      * Allows the user to join a remote game that is in progress.
      * @param gameId ID of the remote game.
      */
@@ -127,20 +109,6 @@ export class AuthService {
         // validate the game ID here
 
         return this.http.get(this.apiUrl + 'game/remote/' + gameId + '/');
-    }
-
-    /**
-     * Saves the progress of a game so that it can be resumed later.
-     * @param game Game object.
-     */
-    public saveGame(game: Object) : Observable<any> {
-        // This is a feature that requires an account.
-        if (!this.signedIn.getValue()) {
-            this.router.navigate(['/login'], {state: {message: 'You need to be logged in to do that.'}});
-            return;
-        }
-
-        return this.http.post(this.apiUrl + 'game/', game);
     }
 
     /**
@@ -163,6 +131,10 @@ export class AuthService {
      */
     private setToken(username: string, token: string) : void {
         localStorage.setItem("user", JSON.stringify({username: username, token: token}));
+    }
+
+    public setGameId(gameId: string) : void {
+        localStorage.setItem("game_id", gameId);
     }
 
     public throwErrorIfNotLoggedIn() {

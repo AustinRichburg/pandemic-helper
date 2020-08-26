@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
+
 import { MatDialogRef } from '@angular/material/dialog';
+
 import { AuthService } from 'src/app/auth.service';
 
 @Component({
@@ -12,7 +14,8 @@ export class JoinMultiComponent implements OnInit {
     gameId: string;
     error: string;
 
-    constructor(public dialogRef: MatDialogRef<JoinMultiComponent>,
+    constructor(
+        public dialogRef: MatDialogRef<JoinMultiComponent>,
         private auth: AuthService) { }
 
     ngOnInit() { }
@@ -20,18 +23,18 @@ export class JoinMultiComponent implements OnInit {
     joinRemoteGame() : boolean {
         if (!this.gameId.trim()) {
             this.error = "Please enter a valid game ID.";
-            return false;
+            return;
         }
 
         if (this.gameId.trim().length != 6) {
             this.error = "Game IDs must be 6 characters in length.";
-            return false;
+            return;
         }
 
         this.gameId = this.gameId.toUpperCase();
 
         const success = (res: any) => {
-            this.dialogRef.close({id: this.gameId});
+            this.dialogRef.close(res.id);
         };
         const error = (err: any) => {
             this.error = err.error;

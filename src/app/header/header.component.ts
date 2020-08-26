@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { AuthService } from '../auth.service';
-import { Router, NavigationStart, RoutesRecognized } from '@angular/router';
+import { Router, NavigationStart } from '@angular/router';
 
-//TODO: stop user scrolling when the menu is open
+//TODO: stop user scrolling when the mobile menu is open
 
 @Component({
     selector: 'app-header',

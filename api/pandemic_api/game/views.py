@@ -1,5 +1,7 @@
 import json, string, random
 
+from django.core.exceptions import ObjectDoesNotExist
+
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -44,11 +46,12 @@ class RemoteGameView(APIView):
         if game_id == None:
             return Response('Game ID required.', status=status.HTTP_400_BAD_REQUEST)
 
-        game = RemoteGame.objects.filter(id=game_id).values()
-        if not game:
-            return Response('Game not found.', status=status.HTTP_404_NOT_FOUND)
+        try:
+            game = RemoteGame.objects.get(id=game_id)
+        except ObjectDoesNotExist:
+             return Response('Game not found.', status=status.HTTP_404_NOT_FOUND) 
 
-        return Response({'data': list(game)})
+        return Response({'id': game.id})
 
     def post(self, request):
         """
@@ -61,7 +64,7 @@ class RemoteGameView(APIView):
         while RemoteGame.objects.filter(id=id).values():
             id = self.create_game_id(self.ID_LENGTH)
 
-        game = RemoteGame(id=id)
+        game = RemoteGame(id=id, game_master=request.user.get_username())
         game.save()
         return Response({'data': 'created game', 'id': id})
         

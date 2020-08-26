@@ -16,7 +16,7 @@ describe('JoinMultiComponent', () => {
         TestBed.configureTestingModule({
             declarations: [ JoinMultiComponent ],
             imports: [ FormsModule, MatDialogModule, HttpClientTestingModule, RouterTestingModule ],
-            providers: [ { provide: AuthService, useClass: MockAuthService }, { provide: MatDialogRef, useValue: {} } ]
+            providers: [ { provide: MatDialogRef, useValue: {} } ]
         })
         .compileComponents();
     }));
@@ -64,11 +64,3 @@ describe('JoinMultiComponent', () => {
     });
 
 });
-
-class MockAuthService {
-
-  startRemoteGame() {
-      return true;
-  }
-
-}

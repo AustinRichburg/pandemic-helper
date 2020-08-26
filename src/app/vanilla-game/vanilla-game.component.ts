@@ -1,32 +1,34 @@
-import { Component, OnInit, ViewChild, AfterViewInit } from '@angular/core';
-import { Observable, of } from 'rxjs';
+import { Component, OnInit } from '@angular/core';
+import { Title } from '@angular/platform-browser';
+
+import { MatDialog } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
+
 import { AuthService } from '../auth.service';
 import { WebsocketConfigService } from '../websocketConfig.service';
 import { DeckService } from '../deck.service';
-import { MatDialog } from '@angular/material/dialog';
-import { SnackbarComponent } from '../shared/snackbar/snackbar.component';
-import { Title } from '@angular/platform-browser';
 
 @Component({
     selector: 'app-vanilla-game',
     templateUrl: './vanilla-game.component.html',
     styleUrls: ['./vanilla-game.component.scss']
 })
-export class VanillaGameComponent implements OnInit, AfterViewInit {
+export class VanillaGameComponent implements OnInit {
 
-    @ViewChild(SnackbarComponent, {static: true}) snackbar: SnackbarComponent;
-
-    hasConnected: boolean;
-    gameId: string;
-    msg = "test";
     title: string = "Pandemic Helper - Vanilla";
+
+    gameId: string;
+    gameName: string = '';
+    isJoinedGame: boolean = false;
+    playerList: Object = {};
 
     constructor(
         private titleService: Title,
         private auth: AuthService,
         private deck: DeckService,
         private wsConfig: WebsocketConfigService,
-        public dialog: MatDialog) { }
+        public dialog: MatDialog,
+        private snackbar: MatSnackBar) { }
 
     ngOnInit() {
         this.titleService.setTitle(this.title);
@@ -37,26 +39,46 @@ export class VanillaGameComponent implements OnInit, AfterViewInit {
                         res => {
                             this.gameId = res['id'];
                             this.wsConfig.setGameId(res['id']);
-
+                            this.auth.setGameId(res['id']);
                         }
                     );
                 }
                 this.gameId = gameId;
+                this.isJoinedGame = this.wsConfig.isJoinedGame();
             }
         );
-        
+        this.deck.isGameChange().subscribe(
+            change => {
+                if (change) {
+                    this.deck.getGameName().subscribe(
+                        name => this.gameName = name
+                    );
+                    this.deck.getPlayers().subscribe(
+                        playerList => this.updatePlayerList(playerList)
+                    );
+                }
+            }
+        );
     }
 
-    ngAfterViewInit() {
-        this.displaySnackbar = (msg: string) => { this.snackbar.displayMessage(msg) }
+    setGameName() : void {
+        this.deck.setGameName(this.gameName);
     }
 
-    getHasConnected(): Observable<boolean> {
-        return of(this.hasConnected);
-    }
+    updatePlayerList(list: Object) {
+        const prevList = Object.keys(this.playerList);
+        const newList = Object.keys(list);
+        let diff = 'Player';
 
-    displaySnackbar(msg: string) {
-        return;
+        if (prevList.length < newList.length) {
+            diff = newList.find(ele => !prevList.includes(ele));
+            this.snackbar.open(diff + ' has joined the game.');
+        } else if (prevList.length > newList.length) {
+            diff = prevList.find(ele => !newList.includes(ele));
+            this.snackbar.open(diff + ' has left the game.');
+        }
+
+        this.playerList = list
     }
 
 }

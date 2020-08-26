@@ -1,15 +1,19 @@
 import urllib.parse, json
+import redis
+from django.core.exceptions import ObjectDoesNotExist
 from asgiref.sync import async_to_sync
 from channels.generic.websocket import JsonWebsocketConsumer
 from rest_framework.authtoken.models import Token
 from channels.db import database_sync_to_async
 from .models import RemoteGame, Game as SaveGame
 from .classes.Game import Game
+from .threadpool import ThreadPool
 
 class GameConsumer(JsonWebsocketConsumer):
 
-    playerlist: list = []
-    game: Game = Game()
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.thread = None
 
     def connect(self):
         self.game_id = self.scope['url_route']['kwargs']['game_id']
@@ -19,10 +23,14 @@ class GameConsumer(JsonWebsocketConsumer):
             token = params.get('token', (None,))[0]
             self.scope["user"] = Token.objects.get(key=token).user
 
-        if self.scope["user"] != None:
-            self.playerlist.append(self.scope["user"].get_username())
-        else:
+        if self.scope["user"] == None:
             self.close()
+
+        if self.game_id not in ThreadPool.threads:
+            ThreadPool.add_game(self.game_id, self)
+        
+        self.thread = ThreadPool.threads[self.game_id]
+        self.thread['playerlist'][self.scope["user"].get_username()] = self.is_game_master()
 
         # Join room group
         async_to_sync(self.channel_layer.group_add)(
@@ -38,16 +46,14 @@ class GameConsumer(JsonWebsocketConsumer):
             }
         )
 
-        self.send_updated_deck()
-
-        print("self.playerlsit, : " + str(self.playerlist))
+        self.game_setup()
 
     def disconnect(self, close_code):
         msg_type = 'update_player_list'
 
-        self.playerlist.remove(self.scope["user"].get_username())
+        del self.thread['playerlist'][self.scope["user"].get_username()]
 
-        if len(self.playerlist) == 0:
+        if len(self.thread['playerlist']) == 0:
             msg_type = 'close_game'
             # RemoteGame.objects.filter(id=self.game_id).delete()
 
@@ -64,31 +70,38 @@ class GameConsumer(JsonWebsocketConsumer):
             self.channel_name
         )
     
-     # Receive message from WebSocket
     def receive_json(self, content):
         msg_type = content.get('type')
         data = content.get('data', None)
-
         is_game_over = False
-        if msg_type == 'draw':
-            self.game.draw_card(data)
-        if msg_type == 'epidemic':
-            is_game_over = self.game.epidemic()
-        if msg_type == 'save':
-            game_dict = self.game.save_game_dict()
-            game = SaveGame(id=self.game_id, name='default', deck=game_dict, game_master=self.scope["user"].get_username())
-            game.save()
-            self.send_json({
-                'type': 'save',
-                'data': True
-            })
+
+        #TODO: create a new exception instead of using generic one
+        # The group send at the end of this function will run once for each person connected to the group,
+        # so all logic that needs to only be executed once happens here.
+        try:
+            if msg_type == 'draw':
+                didDraw = self.thread['game'].draw_card(data)
+                if not didDraw:
+                    return
+            elif msg_type == 'epidemic':
+                is_game_over = self.thread['game'].epidemic()
+            elif msg_type == 'save':
+                if not self.is_game_master(): raise Exception('Unauthorized')
+                game_dict = self.thread['game'].save_game_dict()
+                defaults = { 'name': content.get('name', ''), 'deck': game_dict }
+                game = SaveGame.objects.update_or_create(id=self.game_id, game_master=self.scope["user"].get_username(), defaults=defaults)
+            elif msg_type == 'load':
+                if not self.is_game_master(): raise Exception('Unauthorized')
+                game = list(SaveGame.objects.filter(id=data).values())
+                game_deck = game[0]['deck']
+                json_game_deck = game_deck.replace("'", "\"")
+                self.thread['game'].load_game(json.loads(json_game_deck))
+            elif msg_type == 'new_game':
+                if not self.is_game_master(): raise Exception('Unauthorized')
+                self.thread['game'] = Game()
+        except Exception as e:
+            self.send_json({'type': 'unauthorized'})
             return
-        if msg_type == 'load':
-            game = list(SaveGame.objects.filter(id=data).values())
-            game_deck = game[0]['deck']
-            json_game_deck = game_deck.replace("'", "\"")
-            self.game.load_game(json.loads(json_game_deck))
-            msg_type = 'draw'
 
         if is_game_over:
             msg_type = 'game_over'
@@ -103,18 +116,23 @@ class GameConsumer(JsonWebsocketConsumer):
             }
         )
 
-    # Sends the updated player list to all players when a player enters or leaves the game
     def update_player_list(self, event):
-        # Send message to WebSocket
         self.send_json({
-            'data': self.playerlist,
             'type': 'player_list',
+            'data': self.thread['playerlist'],
+            'is_gm': self.is_game_master()
         })
 
     def draw(self, event):
+        self.send_json({
+            'type': 'draw'
+        })
         self.send_updated_deck()
 
     def epidemic(self, event):
+        self.send_json({
+            'type': 'epidemic'
+        })
         self.send_updated_deck()
 
     def close_game(self, event):
@@ -131,7 +149,7 @@ class GameConsumer(JsonWebsocketConsumer):
         city = event.get('data').get('city')
         note = event.get('data').get('note')
 
-        self.game.add_note(city, note)
+        self.thread['game'].add_note(city, note)
 
         self.send_json({
             'type': 'add_note',
@@ -146,7 +164,7 @@ class GameConsumer(JsonWebsocketConsumer):
         city = event.get('data').get('city')
         index = event.get('data').get('index')
 
-        self.game.delete_note(city, index)
+        self.thread['game'].delete_note(city, index)
 
         self.send_json({
             'type': 'remove_note',
@@ -160,6 +178,44 @@ class GameConsumer(JsonWebsocketConsumer):
     def send_updated_deck(self):
         self.send_json({
             'type': 'update_game',
-            'data': self.game.to_dict(),
+            'data': self.thread['game'].to_dict(),
             'from': self.scope["user"].get_username()
         })
+
+    def name(self, event):
+        self.thread['name'] = event.get('data')
+
+        self.send_json({
+            'type': 'name',
+            'data': self.thread['name'],
+            'from': self.scope["user"].get_username()
+        })
+    
+    def game_setup(self):
+        self.send_json({
+            'type': 'game_setup',
+            'deck': self.thread['game'].to_dict(),
+            'name': self.thread['name']
+        })
+
+    def save(self, event):
+        self.send_json({
+            'type': 'save',
+            'data': True
+        })
+
+    def load(self, event):
+        self.send_json({
+            'type': 'load',
+            'data': True
+        })
+        self.send_updated_deck()
+
+    def new_game(self, event):
+        self.send_json({
+            'type': 'new_game'
+        })
+        self.send_updated_deck()  
+
+    def is_game_master(self):
+        return self.thread['game_master'] == self.scope["user"].get_username()

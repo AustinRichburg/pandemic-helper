@@ -11,7 +11,6 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { GameListComponent } from './game-list/game-list.component';
 import { JoinMultiComponent } from './join-multi/join-multi.component';
 import { GameHistoryComponent } from './game-history/game-history.component';
-import { SnackbarComponent } from './snackbar/snackbar.component';
 
 
 
@@ -24,8 +23,7 @@ import { SnackbarComponent } from './snackbar/snackbar.component';
         NoteContentComponent,
         GameListComponent,
         JoinMultiComponent,
-        GameHistoryComponent,
-        SnackbarComponent
+        GameHistoryComponent
     ],
     imports: [
         AppRoutingModule,
@@ -42,8 +40,7 @@ import { SnackbarComponent } from './snackbar/snackbar.component';
         NotesComponent,
         MatDialogModule,
         NoteContentComponent,
-        GameHistoryComponent,
-        SnackbarComponent
+        GameHistoryComponent
     ]
 })
 export class SharedModule { }

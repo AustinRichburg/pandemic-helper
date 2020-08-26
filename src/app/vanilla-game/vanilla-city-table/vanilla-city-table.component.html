@@ -43,12 +43,3 @@
 <button class="vanilla-button" mat-button [routerLink]="['/rules', 'vanilla']">Open Rulebook</button>
 
 <app-game-history [gameHistory]="gameHistory"></app-game-history>
-
-<div class="player-list">
-    <p>Player List</p>
-    <ul>
-        <li *ngFor="let player of playerList">{{ player }}</li>
-    </ul>
-</div>
-
-<app-snackbar></app-snackbar>
